@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
 import axios from 'axios';
+import PaperLoader from '../components/PaperLoader';
 
 function Dashboard() {
   const { getAccessTokenSilently, user, isLoading, isAuthenticated } = useAuth0();
@@ -15,8 +16,10 @@ function Dashboard() {
       setIsApiLoading(true);
       setError(null);
       try {
-        const token = await getAccessTokenSilently();
-        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/protected`, {
+        const token = await getAccessTokenSilently({
+          audience: import.meta.env.VITE_AUTH0_AUDIENCE,
+        });
+        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/private`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -42,6 +45,7 @@ function Dashboard() {
   }
 
   return (
+    <>
     <div className="container mx-auto mt-10">
       <h1 className="text-3xl font-bold mb-4">Dashboard</h1>
       {user && (
@@ -54,6 +58,8 @@ function Dashboard() {
       {error && <p className="text-red-500">{error}</p>}
       {message && <p>Protected Message: {message}</p>}
     </div>
+    <PaperLoader />
+    </>
   );
 }
 
