@@ -27,17 +27,19 @@ function PaperLoader() {
         });
         console.log('Response status:', response.status);
         console.log('Response data:', response.data);
-      } else if (file) {
-        const formData = new FormData();
-        formData.append('file', file);
-        response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/papers/upload`, formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-            Authorization: `Bearer ${token}`
-          }
-        });
-      } else {
-        throw new Error('Please provide either an arXiv ID or upload a PDF file');
+      } 
+      // else if (file) {
+      //   const formData = new FormData();
+      //   formData.append('file', file);
+      //   response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/papers/upload`, formData, {
+      //     headers: {
+      //       'Content-Type': 'multipart/form-data',
+      //       Authorization: `Bearer ${token}`
+      //     }
+      //   });
+      // } 
+      else {
+        throw new Error('Please provide either an arXiv ID');
       }
       if (response.data) {
         setPaper(response.data);
@@ -52,15 +54,15 @@ function PaperLoader() {
     }
   };
 
-  const handleFileChange = (e) => {
-    const selectedFile = e.target.files[0];
-    if (selectedFile && selectedFile.type === 'application/pdf') {
-      setFile(selectedFile);
-      setArxivId(''); // Clear arXiv ID when a file is selected
-    } else {
-      setError('Please select a valid PDF file');
-    }
-  };
+  // const handleFileChange = (e) => {
+  //   const selectedFile = e.target.files[0];
+  //   if (selectedFile && selectedFile.type === 'application/pdf') {
+  //     setFile(selectedFile);
+  //     setArxivId(''); // Clear arXiv ID when a file is selected
+  //   } else {
+  //     setError('Please select a valid PDF file');
+  //   }
+  // };
 
   return (
     <div className="max-w-2xl mx-auto mt-8">
@@ -78,7 +80,7 @@ function PaperLoader() {
             className="w-full p-2 border rounded"
           />
         </div>
-        <div className="mb-4">
+        {/* <div className="mb-4">
           <label className="block mb-2">Or upload a PDF file:</label>
           <input
             type="file"
@@ -86,7 +88,7 @@ function PaperLoader() {
             onChange={handleFileChange}
             className="w-full p-2 border rounded"
           />
-        </div>
+        </div> */}
         <button 
           type="submit"
           className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
