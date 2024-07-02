@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useAuth0 } from '@auth0/auth0-react';
+import { CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/solid';
 
 function PaperLoader() {
   const [arxivId, setArxivId] = useState('');
-  const [file, setFile] = useState(null);
   const [paper, setPaper] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -16,31 +16,16 @@ function PaperLoader() {
     setError(null);
     try {
       const token = await getAccessTokenSilently();
-      let response;
-      if (arxivId) {
-        console.log(`Fetching paper with arXiv ID: ${arxivId}`);
-        console.log(`API URL: ${import.meta.env.VITE_API_BASE_URL}/api/papers/${arxivId}`);
-        response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/papers/${arxivId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-        console.log('Response status:', response.status);
-        console.log('Response data:', response.data);
-      } 
-      // else if (file) {
-      //   const formData = new FormData();
-      //   formData.append('file', file);
-      //   response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/papers/upload`, formData, {
-      //     headers: {
-      //       'Content-Type': 'multipart/form-data',
-      //       Authorization: `Bearer ${token}`
-      //     }
-      //   });
-      // } 
-      else {
-        throw new Error('Please provide either an arXiv ID');
-      }
+      console.log(`Fetching paper with arXiv ID: ${arxivId}`);
+      console.log(`API URL: ${import.meta.env.VITE_API_BASE_URL}/api/papers/${arxivId}`);
+      const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/papers/${arxivId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      console.log('Response status:', response.status);
+      console.log('Response data:', response.data);
+      
       if (response.data) {
         setPaper(response.data);
       } else {
@@ -54,16 +39,6 @@ function PaperLoader() {
     }
   };
 
-  // const handleFileChange = (e) => {
-  //   const selectedFile = e.target.files[0];
-  //   if (selectedFile && selectedFile.type === 'application/pdf') {
-  //     setFile(selectedFile);
-  //     setArxivId(''); // Clear arXiv ID when a file is selected
-  //   } else {
-  //     setError('Please select a valid PDF file');
-  //   }
-  // };
-
   return (
     <div className="max-w-2xl mx-auto mt-8">
       <h1 className="text-2xl font-bold mb-4">Paper Loader</h1>
@@ -72,27 +47,15 @@ function PaperLoader() {
           <input
             type="text"
             value={arxivId}
-            onChange={(e) => {
-              setArxivId(e.target.value);
-              setFile(null); // Clear file when arXiv ID is entered
-            }}
+            onChange={(e) => setArxivId(e.target.value)}
             placeholder="Enter arXiv ID"
             className="w-full p-2 border rounded"
           />
         </div>
-        {/* <div className="mb-4">
-          <label className="block mb-2">Or upload a PDF file:</label>
-          <input
-            type="file"
-            accept=".pdf"
-            onChange={handleFileChange}
-            className="w-full p-2 border rounded"
-          />
-        </div> */}
         <button 
           type="submit"
           className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-          disabled={loading || (!arxivId && !file)}
+          disabled={loading || !arxivId}
         >
           {loading ? 'Loading...' : 'Load Paper'}
         </button>
@@ -109,9 +72,10 @@ function PaperLoader() {
             </p>
           )}
           {paper.abstract && (
-            <p>
-              <strong>Abstract:</strong> {paper.abstract}
-            </p>
+            <details>
+              <summary><strong>Abstract:</strong></summary>
+              <p>{paper.abstract}</p>
+            </details>
           )}
           {paper.pdf_url && (
             <a
@@ -126,11 +90,25 @@ function PaperLoader() {
           {paper.references && paper.references.length > 0 && (
             <div>
               <h3 className="mt-4 font-bold">References:</h3>
-              <ol className="list-decimal pl-5">
+              <ul className="list-none pl-0">
                 {paper.references.map((ref, index) => (
-                  <li key={index}>{ref}</li>
+                  <li key={index} className="flex items-start mb-2">
+                    {ref.is_available_on_arxiv ? (
+                      <CheckCircleIcon className="h-5 w-5 text-green-500 mr-2 mt-1 flex-shrink-0" />
+                    ) : (
+                      <XCircleIcon className="h-5 w-5 text-red-500 mr-2 mt-1 flex-shrink-0" />
+                    )}
+                    <span>
+                      {ref.text}
+                      {ref.is_available_on_arxiv && (
+                        <span className="ml-2 text-sm text-green-600">
+                          (arXiv: {ref.arxiv_id})
+                        </span>
+                      )}
+                    </span>
+                  </li>
                 ))}
-              </ol>
+              </ul>
             </div>
           )}
         </div>
@@ -140,4 +118,3 @@ function PaperLoader() {
 }
 
 export default PaperLoader;
-

@@ -51,12 +51,11 @@ function Dashboard() {
       {user && (
         <div className="mb-4">
           <h2 className="text-xl font-semibold">Welcome, {user.name}!</h2>
-          <p>Email: {user.email}</p>
         </div>
       )}
-      {isApiLoading && <p>Loading protected message...</p>}
+      {/* {isApiLoading && <p>Loading protected message...</p>}
       {error && <p className="text-red-500">{error}</p>}
-      {message && <p>Protected Message: {message}</p>}
+      {message && <p>Protected Message: {message}</p>} */}
     </div>
     <PaperLoader />
     </>
