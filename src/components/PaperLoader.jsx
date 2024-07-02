@@ -40,10 +40,10 @@ function PaperLoader() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto mt-8">
-      <h1 className="text-2xl font-bold mb-4">Paper Loader</h1>
+    <div className="max-w-4xl text-left mt-8 ml-8">
+      <h1 className="text-xl font-bold mb-4">Paper Loader</h1>
       <form onSubmit={handleSubmit} className="mb-4">
-        <div className="mb-4">
+        <div className="mb-4 max-w-sm">
           <input
             type="text"
             value={arxivId}
@@ -90,25 +90,27 @@ function PaperLoader() {
           {paper.references && paper.references.length > 0 && (
             <div>
               <h3 className="mt-4 font-bold">References:</h3>
-              <ul className="list-none pl-0">
-                {paper.references.map((ref, index) => (
-                  <li key={index} className="flex items-start mb-2">
-                    {ref.is_available_on_arxiv ? (
-                      <CheckCircleIcon className="h-5 w-5 text-green-500 mr-2 mt-1 flex-shrink-0" />
-                    ) : (
-                      <XCircleIcon className="h-5 w-5 text-red-500 mr-2 mt-1 flex-shrink-0" />
-                    )}
-                    <span>
-                      {ref.text}
-                      {ref.is_available_on_arxiv && (
-                        <span className="ml-2 text-sm text-green-600">
-                          (arXiv: {ref.arxiv_id})
-                        </span>
+              <div className="max-h-64 overflow-y-auto">
+                <ul className="list-none pl-0">
+                  {paper.references.map((ref, index) => (
+                    <li key={index} className="flex items-start mb-2">
+                      {ref.is_available_on_arxiv ? (
+                        <CheckCircleIcon className="h-5 w-5 text-green-500 mr-2 mt-1 flex-shrink-0" />
+                      ) : (
+                        <XCircleIcon className="h-5 w-5 text-red-500 mr-2 mt-1 flex-shrink-0" />
                       )}
-                    </span>
-                  </li>
-                ))}
-              </ul>
+                      <span>
+                        {ref.text}
+                        {ref.is_available_on_arxiv && (
+                          <span className="ml-2 text-sm text-green-600">
+                            (arXiv: {ref.arxiv_id})
+                          </span>
+                        )}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
           )}
         </div>

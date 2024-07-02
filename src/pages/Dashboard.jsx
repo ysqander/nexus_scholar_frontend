@@ -46,7 +46,7 @@ function Dashboard() {
 
   return (
     <>
-    <div className="container mx-auto mt-10">
+    <div className="container mt-6 ml-8">
       <h1 className="text-3xl font-bold mb-4">Dashboard</h1>
       {user && (
         <div className="mb-4">
