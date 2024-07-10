@@ -41,7 +41,7 @@ function PaperLoader() {
 
   return (
     <div className="max-w-4xl text-left mt-8 ml-8">
-      <h1 className="text-xl font-bold mb-4">Paper Loader</h1>
+      <h1 className="text-xl font-bold mb-4">Type the arxiv ID of the paper</h1>
       <form onSubmit={handleSubmit} className="mb-4">
         <div className="mb-4 max-w-sm">
           <input
@@ -68,7 +68,11 @@ function PaperLoader() {
           <h2 className="text-xl font-bold">{paper.title}</h2>
           {paper.authors && (
             <p>
-              <strong>Authors:</strong> {paper.authors.join(', ')}
+              <strong>Authors:</strong> {
+                Array.isArray(paper.authors) 
+                  ? paper.authors.join(', ')
+                  : paper.authors // If it's not an array, just render it as is
+              }
             </p>
           )}
           {paper.abstract && (
