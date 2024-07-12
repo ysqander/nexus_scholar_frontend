@@ -46,10 +46,10 @@ function Dashboard() {
 
   return (
     <>
-    <div className="container mt-6 ml-8">
-      <h1 className="text-3xl font-bold mb-4">Dashboard</h1>
+    <div className="w-full mt-4  px-4">
+      <h1 className="text-3xl font-bold mb-4 px-4">Dashboard</h1>
       {user && (
-        <div className="mb-4">
+        <div className="mb-4 px-4">
           <h2 className="text-xl font-semibold">Welcome, {user.name}!</h2>
         </div>
       )}
@@ -57,9 +57,10 @@ function Dashboard() {
       {error && <p className="text-red-500">{error}</p>}
       {message && <p>Protected Message: {message}</p>} */}
     </div>
-    <PaperLoader />
+    <div className="w-full">
+      <PaperLoader />
+    </div>
     </>
   );
 }
-
 export default Dashboard;
