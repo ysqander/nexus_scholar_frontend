@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useAuth0 } from '@auth0/auth0-react';
 import { PlusIcon, MinusIcon, DocumentTextIcon, ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/outline';
+import CacheBuilderModal from './CacheBuilderModal';
 
 function PaperLoader() {
   const [arxivId, setArxivId] = useState('');
@@ -16,6 +17,15 @@ function PaperLoader() {
   const [uploadedPdfs, setUploadedPdfs] = useState([]);
   const [showArxivRefs, setShowArxivRefs] = useState(true);
   const [showNonArxivRefs, setShowNonArxivRefs] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const openModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -333,9 +343,27 @@ function PaperLoader() {
                 </ul>
               </div>
             )}
+            <div className="mt-8">
+              <button
+                onClick={openModal}
+                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+              disabled={!paper && additionalPapers.length === 0 && uploadedPdfs.length === 0}
+            >
+              Build Cache and Start Chat
+              </button>
+            </div>
           </div>
         </div>
       </div>
+      {/* CacheBuilderModal */}
+      <CacheBuilderModal
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        arxivId={arxivId}
+        selectedReferences={selectedReferences}
+        additionalPapers={additionalPapers}
+        uploadedPdfs={uploadedPdfs}
+      />
 
       {error && <p className="mt-4 text-red-500">{error}</p>}
     </div>

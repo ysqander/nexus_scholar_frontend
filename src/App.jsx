@@ -4,6 +4,7 @@ import { useAuth0 } from '@auth0/auth0-react';
 import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
+import Chat from './pages/Chat';
 
 function App() {
   const { isLoading, isAuthenticated, loginWithRedirect, logout, user } = useAuth0();
@@ -48,6 +49,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/chat/:sessionId" element={<Chat />} />
       </Routes>
     </div>
   );
