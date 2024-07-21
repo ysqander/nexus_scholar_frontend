@@ -10,45 +10,109 @@ function Chat() {
   const [isLoading, setIsLoading] = useState(false);
   const [isTerminateModalOpen, setIsTerminateModalOpen] = useState(false);
   const messagesEndRef = useRef(null);
+  const websocketRef = useRef(null);
   const { getAccessTokenSilently } = useAuth0();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const connectWebSocket = async () => {
+      const token = await getAccessTokenSilently();
+      const ws = new WebSocket(`${import.meta.env.VITE_WS_BASE_URL}/ws?token=${token}`);
+
+      ws.onopen = () => {
+        console.log('WebSocket connected');
+      };
+
+      ws.onmessage = (event) => {
+        const message = JSON.parse(event.data);
+        if (message.type === 'ai') {
+          if (message.content === '[END]') {
+            // End of message signal
+            setMessages(prev => {
+              const newMessages = [...prev];
+              const lastMessage = newMessages[newMessages.length - 1];
+              if (lastMessage && lastMessage.type === 'ai' && lastMessage.isPartial) {
+                newMessages[newMessages.length - 1] = { 
+                  ...lastMessage, 
+                  isPartial: false,
+                  content: lastMessage.content.trim() // Trim any trailing space
+                };
+              }
+              return newMessages;
+            });
+            setIsLoading(false);
+          } else {
+            setMessages(prev => {
+              const newMessages = [...prev];
+              const lastMessage = newMessages[newMessages.length - 1];
+              if (lastMessage && lastMessage.type === 'ai' && lastMessage.isPartial) {
+                // Append new chunk to the existing message
+                let newContent = lastMessage.content;
+                if (newContent.endsWith(' ') && message.content.startsWith(' ')) {
+                  // Avoid double spaces
+                  newContent += message.content.trimStart();
+                } else if (!newContent.endsWith(' ') && !message.content.startsWith(' ') && newContent.length > 0) {
+                  // Add space if needed
+                  newContent += ' ' + message.content;
+                } else {
+                  // Just append as is
+                  newContent += message.content;
+                }
+                newMessages[newMessages.length - 1] = {
+                  ...lastMessage,
+                  content: newContent,
+                };
+              } else {
+                // Start a new AI message
+                newMessages.push({ type: 'ai', content: message.content, isPartial: true });
+              }
+              return newMessages;
+            });
+          }
+        } else if (message.type === 'user') {
+          setMessages(prev => [...prev, { type: 'user', content: message.content }]);
+        }
+      };
+
+      ws.onerror = (error) => {
+        console.error('WebSocket error:', error);
+      };
+
+      ws.onclose = () => {
+        console.log('WebSocket disconnected');
+      };
+
+      websocketRef.current = ws;
+    };
+
+    connectWebSocket();
+
+    return () => {
+      if (websocketRef.current) {
+        websocketRef.current.close();
+      }
+    };
+  }, [getAccessTokenSilently]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const sendMessage = async (e) => {
+  const sendMessage = (e) => {
     e.preventDefault();
-    if (!inputMessage.trim()) return;
+    if (!inputMessage.trim() || !websocketRef.current) return;
 
     setIsLoading(true);
-    try {
-      const token = await getAccessTokenSilently();
-      const response = await axios.post(
-        `${import.meta.env.VITE_API_BASE_URL}/api/chat/message`,
-        {
-          session_id: sessionId,
-          message: inputMessage,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+    setMessages(prev => [...prev, { type: 'user', content: inputMessage }]);
 
-      setMessages([
-        ...messages,
-        { type: 'user', content: inputMessage },
-        { type: 'ai', content: response.data.response },
-      ]);
-      setInputMessage('');
-    } catch (error) {
-      console.error('Error sending message:', error);
-      // Handle error (e.g., show an error message to the user)
-    } finally {
-      setIsLoading(false);
-    }
+    const message = {
+      type: 'message',
+      content: inputMessage,
+      sessionId: sessionId
+    };
+
+    websocketRef.current.send(JSON.stringify(message));
+    setInputMessage('');
   };
 
   const handleTerminateChat = async () => {
@@ -99,6 +163,7 @@ function Chat() {
               }`}
             >
               {message.content}
+              {message.isPartial && <span className="animate-pulse">▋</span>}
             </div>
           </div>
         ))}

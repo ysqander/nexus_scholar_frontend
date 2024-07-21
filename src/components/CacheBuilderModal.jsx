@@ -20,7 +20,7 @@ function CacheBuilderModal({ isOpen, onClose, arxivId, selectedReferences, addit
 
   const handleBuildCache = async () => {
     setIsBuildingCache(true);
-    setCacheStatus('Starting cache build...');
+    setCacheStatus('Preparing documents...');
     setError(null);
 
     try {
@@ -36,6 +36,7 @@ function CacheBuilderModal({ isOpen, onClose, arxivId, selectedReferences, addit
         formData.append(`pdf_${index}`, pdf);
       });
 
+      setCacheStatus('Uploading documents...');
       const response = await axios.post(
         `${import.meta.env.VITE_API_BASE_URL}/api/create-cache`,
         formData,
@@ -46,14 +47,25 @@ function CacheBuilderModal({ isOpen, onClose, arxivId, selectedReferences, addit
           },
           onUploadProgress: (progressEvent) => {
             const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-            setCacheStatus(`Uploading files: ${percentCompleted}%`);
+            setCacheStatus(`Uploading documents: ${percentCompleted}%`);
           },
         }
       );
 
-      setCacheStatus('Cache built successfully! Starting chat session...');
+      setCacheStatus('Processing documents and building cache...');
+      // Simulate progress for cache building (since we don't have real-time updates)
+      let progress = 0;
+      const interval = setInterval(() => {
+        progress += 5;
+        if (progress <= 95) {
+          setCacheStatus(`Processing documents and building cache: ${progress}%`);
+        } else {
+          clearInterval(interval);
+        }
+      }, 1000);
 
       // Start a new chat session
+      setCacheStatus('Starting chat session...');
       const chatSessionResponse = await axios.post(
         `${import.meta.env.VITE_API_BASE_URL}/api/chat/start`,
         { cached_content_name: response.data.cached_content_name },
@@ -63,6 +75,9 @@ function CacheBuilderModal({ isOpen, onClose, arxivId, selectedReferences, addit
           },
         }
       );
+
+      clearInterval(interval);
+      setCacheStatus('Cache built successfully! Redirecting to chat...');
 
       // Navigate to the chat page
       navigate(`/chat/${chatSessionResponse.data.session_id}`);
