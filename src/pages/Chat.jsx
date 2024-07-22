@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth0 } from '@auth0/auth0-react';
 import axios from 'axios';
@@ -11,8 +11,28 @@ function Chat() {
   const [isTerminateModalOpen, setIsTerminateModalOpen] = useState(false);
   const messagesEndRef = useRef(null);
   const websocketRef = useRef(null);
+  const heartbeatIntervalRef = useRef(null);
   const { getAccessTokenSilently } = useAuth0();
   const navigate = useNavigate();
+  
+  const sendHeartbeat = useCallback(() => {
+    if (websocketRef.current && websocketRef.current.readyState === WebSocket.OPEN) {
+      websocketRef.current.send(JSON.stringify({ type: 'heartbeat', sessionId }));
+    }
+  }, [sessionId]);
+
+  const terminateSession = useCallback(async () => {
+    try {
+      const token = await getAccessTokenSilently();
+      await axios.post(
+        `${import.meta.env.VITE_API_BASE_URL}/api/chat/terminate`,
+        { session_id: sessionId },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+    } catch (error) {
+      console.error('Error terminating session:', error);
+    }
+  }, [getAccessTokenSilently, sessionId]);
 
   useEffect(() => {
     const connectWebSocket = async () => {
@@ -21,6 +41,8 @@ function Chat() {
 
       ws.onopen = () => {
         console.log('WebSocket connected');
+        // Start sending heartbeats
+        heartbeatIntervalRef.current = setInterval(sendHeartbeat, 30000);
       };
 
       ws.onmessage = (event) => {
@@ -80,6 +102,10 @@ function Chat() {
 
       ws.onclose = () => {
         console.log('WebSocket disconnected');
+        // Clear heartbeat interval on disconnect
+        if (heartbeatIntervalRef.current) {
+          clearInterval(heartbeatIntervalRef.current);
+        }
       };
 
       websocketRef.current = ws;
@@ -87,12 +113,29 @@ function Chat() {
 
     connectWebSocket();
 
+    // Set up beforeunload event listener
+    const handleBeforeUnload = (event) => {
+      if (websocketRef.current && websocketRef.current.readyState === WebSocket.OPEN) {
+        websocketRef.current.send(JSON.stringify({ type: 'terminate', sessionId }));
+      }
+      terminateSession();
+      event.preventDefault();
+      event.returnValue = '';
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
     return () => {
       if (websocketRef.current) {
         websocketRef.current.close();
       }
+      if (heartbeatIntervalRef.current) {
+        clearInterval(heartbeatIntervalRef.current);
+      }
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      terminateSession();
     };
-  }, [getAccessTokenSilently]);
+  }, [getAccessTokenSilently, sendHeartbeat, terminateSession, sessionId]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
