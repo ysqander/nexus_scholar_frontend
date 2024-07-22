@@ -6,7 +6,6 @@ import { useNavigate } from 'react-router-dom';
 
 function CacheBuilderModal({ isOpen, onClose, arxivId, selectedReferences, additionalPapers, uploadedPdfs }) {
   const [isBuildingCache, setIsBuildingCache] = useState(false);
-  const [cacheStatus, setCacheStatus] = useState('');
   const [error, setError] = useState(null);
 
   const { getAccessTokenSilently } = useAuth0();
@@ -20,7 +19,6 @@ function CacheBuilderModal({ isOpen, onClose, arxivId, selectedReferences, addit
 
   const handleBuildCache = async () => {
     setIsBuildingCache(true);
-    setCacheStatus('Preparing documents...');
     setError(null);
 
     try {
@@ -36,7 +34,7 @@ function CacheBuilderModal({ isOpen, onClose, arxivId, selectedReferences, addit
         formData.append(`pdf_${index}`, pdf);
       });
 
-      setCacheStatus('Uploading documents...');
+     
       const response = await axios.post(
         `${import.meta.env.VITE_API_BASE_URL}/api/create-cache`,
         formData,
@@ -45,27 +43,11 @@ function CacheBuilderModal({ isOpen, onClose, arxivId, selectedReferences, addit
             'Content-Type': 'multipart/form-data',
             Authorization: `Bearer ${token}`,
           },
-          onUploadProgress: (progressEvent) => {
-            const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-            setCacheStatus(`Uploading documents: ${percentCompleted}%`);
-          },
         }
       );
 
-      setCacheStatus('Processing documents and building cache...');
-      // Simulate progress for cache building (since we don't have real-time updates)
-      let progress = 0;
-      const interval = setInterval(() => {
-        progress += 5;
-        if (progress <= 95) {
-          setCacheStatus(`Processing documents and building cache: ${progress}%`);
-        } else {
-          clearInterval(interval);
-        }
-      }, 1000);
-
       // Start a new chat session
-      setCacheStatus('Starting chat session...');
+     
       const chatSessionResponse = await axios.post(
         `${import.meta.env.VITE_API_BASE_URL}/api/chat/start`,
         { cached_content_name: response.data.cached_content_name },
@@ -76,15 +58,11 @@ function CacheBuilderModal({ isOpen, onClose, arxivId, selectedReferences, addit
         }
       );
 
-      clearInterval(interval);
-      setCacheStatus('Cache built successfully! Redirecting to chat...');
-
       // Navigate to the chat page
       navigate(`/chat/${chatSessionResponse.data.session_id}`);
     } catch (error) {
       console.error('Error building cache:', error);
       setError('Failed to build cache. Please try again.');
-      setCacheStatus('');
     } finally {
       setIsBuildingCache(false);
     }
@@ -104,17 +82,17 @@ function CacheBuilderModal({ isOpen, onClose, arxivId, selectedReferences, addit
             <XMarkIcon className="h-6 w-6" />
           </button>
           <div className="mt-2 px-7 py-3">
-            <p className="text-sm text-gray-500">
-              {cacheStatus}
-            </p>
-            {isBuildingCache && (
-              <div className="mt-4">
-                <div className="w-full bg-gray-200 rounded-full h-2.5">
-                  <div className="bg-blue-600 h-2.5 rounded-full w-full animate-pulse"></div>
-                </div>
+            {isBuildingCache ? (
+              <div className="flex flex-col items-center">
+                <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500"></div>
+                <p className="mt-4 text-sm text-gray-500">Building your paper context...</p>
+                <p className="mt-2 text-xs text-gray-400">This may take a few moments</p>
               </div>
+            ) : error ? (
+              <p className="text-red-500">{error}</p>
+            ) : (
+              <p className="text-sm text-gray-500">Ready to build your cache</p>
             )}
-            {error && <p className="mt-4 text-red-500">{error}</p>}
           </div>
         </div>
       </div>
