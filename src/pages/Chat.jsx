@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth0 } from '@auth0/auth0-react';
 import axios from 'axios';
+import ReactMarkdown from 'react-markdown';
 
 function Chat() {
   const { sessionId } = useParams();
@@ -69,24 +70,17 @@ function Chat() {
               const lastMessage = newMessages[newMessages.length - 1];
               if (lastMessage && lastMessage.type === 'ai' && lastMessage.isPartial) {
                 // Append new chunk to the existing message
-                let newContent = lastMessage.content;
-                if (newContent.endsWith(' ') && message.content.startsWith(' ')) {
-                  // Avoid double spaces
-                  newContent += message.content.trimStart();
-                } else if (!newContent.endsWith(' ') && !message.content.startsWith(' ') && newContent.length > 0) {
-                  // Add space if needed
-                  newContent += ' ' + message.content;
-                } else {
-                  // Just append as is
-                  newContent += message.content;
-                }
                 newMessages[newMessages.length - 1] = {
                   ...lastMessage,
-                  content: newContent,
+                  content: lastMessage.content + message.content,
                 };
               } else {
                 // Start a new AI message
-                newMessages.push({ type: 'ai', content: message.content, isPartial: true });
+                newMessages.push({ 
+                  type: 'ai', 
+                  content: message.content, 
+                  isPartial: true 
+                });
               }
               return newMessages;
             });
@@ -113,18 +107,6 @@ function Chat() {
 
     connectWebSocket();
 
-    // Set up beforeunload event listener
-    const handleBeforeUnload = (event) => {
-      if (websocketRef.current && websocketRef.current.readyState === WebSocket.OPEN) {
-        websocketRef.current.send(JSON.stringify({ type: 'terminate', sessionId }));
-      }
-      terminateSession();
-      event.preventDefault();
-      event.returnValue = '';
-    };
-
-    window.addEventListener('beforeunload', handleBeforeUnload);
-
     return () => {
       if (websocketRef.current) {
         websocketRef.current.close();
@@ -132,8 +114,6 @@ function Chat() {
       if (heartbeatIntervalRef.current) {
         clearInterval(heartbeatIntervalRef.current);
       }
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-      terminateSession();
     };
   }, [getAccessTokenSilently, sendHeartbeat, terminateSession, sessionId]);
 
@@ -205,7 +185,11 @@ function Chat() {
                   : 'bg-white text-gray-800'
               }`}
             >
-              {message.content}
+              {message.type === 'ai' ? (
+                <ReactMarkdown>{message.content}</ReactMarkdown>
+              ) : (
+                message.content
+              )}
               {message.isPartial && <span className="animate-pulse">▋</span>}
             </div>
           </div>
@@ -233,7 +217,7 @@ function Chat() {
           </button>
         </div>
       </form>
-
+  
       {/* Terminate Chat Confirmation Modal */}
       {isTerminateModalOpen && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
