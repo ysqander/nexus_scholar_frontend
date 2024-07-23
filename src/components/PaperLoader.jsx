@@ -97,7 +97,7 @@ function PaperLoader() {
 
   const handlePdfUpload = (event) => {
     const files = Array.from(event.target.files);
-    setUploadedPdfs(prevPdfs => [...prevPdfs, ...files.map(file => ({ name: file.name, size: file.size }))]);
+    setUploadedPdfs(prevPdfs => [...prevPdfs, ...files])
   };
 
   const handleRemovePdf = (index) => {
@@ -161,21 +161,6 @@ function PaperLoader() {
                   </button>
                 </form>
               </div>
-              {uploadedPdfs.length > 0 && (
-                <ul className="space-y-2 mt-4">
-                  {uploadedPdfs.map((pdf, index) => (
-                    <li key={index} className="flex items-center justify-between">
-                      <span>{pdf.name} ({(pdf.size / 1024 / 1024).toFixed(2)} MB)</span>
-                      <button
-                        onClick={() => handleRemovePdf(index)}
-                        className="text-red-500 hover:text-red-700"
-                      >
-                        <MinusIcon className="h-5 w-5" />
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
             </div>
           </div>
 
@@ -326,22 +311,19 @@ function PaperLoader() {
               <div>
                 <h3 className="text-xl font-medium mb-2">Uploaded PDFs</h3>
                 <ul className="space-y-2">
-                  {uploadedPdfs.map((pdf, index) => (
-                    <React.Fragment key={index}>
-                      <li className="flex items-center justify-between">
-                        <span>{pdf.name}</span>
-                        <button
-                          onClick={() => handleRemovePdf(index)}
-                          className="text-red-500 hover:text-red-700"
-                        >
-                          <MinusIcon className="h-5 w-5" />
-                        </button>
-                      </li>
-                      <hr className="my-2" />
-                    </React.Fragment>
-                  ))}
-                </ul>
-              </div>
+                {uploadedPdfs.map((pdf, index) => (
+                  <li key={index} className="flex items-center justify-between">
+                    <span>{pdf.name}</span>
+                    <button
+                      onClick={() => handleRemovePdf(index)}
+                      className="text-red-500 hover:text-red-700"
+                    >
+                      <MinusIcon className="h-5 w-5" />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
             )}
             <div className="mt-8">
               {/* <button
@@ -366,7 +348,7 @@ function PaperLoader() {
       <CacheBuilderModal
         isOpen={isModalOpen}
         onClose={closeModal}
-        arxivId={arxivId}
+        mainPaper={paper ? { id: arxivId, title: paper.title } : null}
         selectedReferences={selectedReferences}
         additionalPapers={additionalPapers}
         uploadedPdfs={uploadedPdfs}

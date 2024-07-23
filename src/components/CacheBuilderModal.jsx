@@ -4,7 +4,7 @@ import { useAuth0 } from '@auth0/auth0-react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { useNavigate } from 'react-router-dom';
 
-function CacheBuilderModal({ isOpen, onClose, arxivId, selectedReferences, additionalPapers, uploadedPdfs }) {
+function CacheBuilderModal({ isOpen, onClose, mainPaper, selectedReferences, additionalPapers, uploadedPdfs }) {
   const [isBuildingCache, setIsBuildingCache] = useState(false);
   const [error, setError] = useState(null);
 
@@ -25,13 +25,13 @@ function CacheBuilderModal({ isOpen, onClose, arxivId, selectedReferences, addit
       const token = await getAccessTokenSilently();
       const selectedArxivIds = Object.keys(selectedReferences).filter(id => selectedReferences[id]);
       const additionalArxivIds = additionalPapers.map(paper => paper.id);
-      const allArxivIds = [arxivId, ...selectedArxivIds, ...additionalArxivIds];
+      const allArxivIds = mainPaper ? [mainPaper.id, ...selectedArxivIds, ...additionalArxivIds] : [...selectedArxivIds, ...additionalArxivIds];
 
       const formData = new FormData();
       formData.append('arxiv_ids', JSON.stringify(allArxivIds));
 
       uploadedPdfs.forEach((pdf, index) => {
-        formData.append(`pdf_${index}`, pdf);
+        formData.append('pdfs', pdf, pdf.name); 
       });
 
      
