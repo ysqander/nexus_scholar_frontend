@@ -152,7 +152,7 @@ function Chat() {
           },
         }
       );
-      navigate('/dashboard');
+      navigate('/contextBuilder');
     } catch (error) {
       console.error('Error terminating chat:', error);
       // Handle error (e.g., show an error message to the user)

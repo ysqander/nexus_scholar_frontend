@@ -2,7 +2,7 @@ import React from 'react';
 import { Routes, Route, Link } from 'react-router-dom';
 import { useAuth0 } from '@auth0/auth0-react';
 import Home from './pages/Home';
-import Dashboard from './pages/Dashboard';
+import ContextBuilder from './pages/ContextBuilder';
 import Profile from './pages/Profile';
 import Chat from './pages/Chat';
 
@@ -22,7 +22,7 @@ function App() {
             <Link to="/" className="text-blue-500 hover:text-blue-700">Home</Link>
             {isAuthenticated && (
               <>
-                <Link to="/dashboard" className="text-blue-500 hover:text-blue-700">Dashboard</Link>
+                <Link to="/contextBuilder" className="text-blue-500 hover:text-blue-700">Context Builder</Link>
                 <Link to="/profile" className="text-blue-500 hover:text-blue-700">Profile</Link>
               </>
             )}
@@ -47,7 +47,7 @@ function App() {
 
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/contextBuilder" element={<ContextBuilder />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/chat/:sessionId" element={<Chat />} />
       </Routes>

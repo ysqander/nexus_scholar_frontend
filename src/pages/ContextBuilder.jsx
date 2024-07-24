@@ -3,7 +3,7 @@ import { useAuth0 } from '@auth0/auth0-react';
 import axios from 'axios';
 import PaperLoader from '../components/PaperLoader';
 
-function Dashboard() {
+function ContextBuilder() {
   const { getAccessTokenSilently, user, isLoading, isAuthenticated } = useAuth0();
   const [message, setMessage] = useState('');
   const [isApiLoading, setIsApiLoading] = useState(false);
@@ -41,13 +41,13 @@ function Dashboard() {
   }
 
   if (!isAuthenticated) {
-    return <div>Please log in to view the dashboard.</div>;
+    return <div>Please log in to view the context builder.</div>;
   }
 
   return (
     <>
     <div className="w-full mt-4  px-4">
-      <h1 className="text-3xl font-bold mb-4 px-4">Dashboard</h1>
+      <h1 className="text-3xl font-bold mb-4 px-4">Context Builder</h1>
       {user && (
         <div className="mb-4 px-4">
           <h2 className="text-xl font-semibold">Welcome, {user.name}!</h2>
@@ -63,4 +63,4 @@ function Dashboard() {
     </>
   );
 }
-export default Dashboard;
+export default ContextBuilder;
