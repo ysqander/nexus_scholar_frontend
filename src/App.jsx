@@ -5,6 +5,7 @@ import Home from './pages/Home';
 import ContextBuilder from './pages/ContextBuilder';
 import Profile from './pages/Profile';
 import Chat from './pages/Chat';
+import ChatHistory from './components/ChatHistory';
 
 function App() {
   const { isLoading, isAuthenticated, loginWithRedirect, logout, user } = useAuth0();
@@ -23,6 +24,7 @@ function App() {
             {isAuthenticated && (
               <>
                 <Link to="/contextBuilder" className="text-blue-500 hover:text-blue-700">Context Builder</Link>
+                <Link to="/chatHistory" className="text-blue-500 hover:text-blue-700">Chat History</Link>
                 <Link to="/profile" className="text-blue-500 hover:text-blue-700">Profile</Link>
               </>
             )}
@@ -50,6 +52,7 @@ function App() {
         <Route path="/contextBuilder" element={<ContextBuilder />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/chat/:sessionId" element={<Chat />} />
+        <Route path="/chatHistory" element={<ChatHistory />} />
       </Routes>
     </div>
   );

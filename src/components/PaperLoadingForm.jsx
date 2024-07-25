@@ -21,7 +21,7 @@ function PaperLoadingForm({ arxivId, setArxivId, loading, handleSubmit, handlePd
             className="bg-green-500 text-white px-4 py-2 rounded-r hover:bg-green-600"
             disabled={isLoadingPaper}
           >
-            {isLoadingPaper ? 'Loading...' : <PlusIcon className="h-5 w-5" />}
+            {isLoadingPaper ? 'Loading...' : "Load"}
           </button>
         </div>
       </form>

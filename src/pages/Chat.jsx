@@ -47,11 +47,13 @@ function Chat() {
       };
 
       ws.onmessage = (event) => {
+        console.log('WebSocket message received:', event.data);
         const message = JSON.parse(event.data);
         if (message.type === 'ai') {
           if (message.content === '[END]') {
             // End of message signal
             setMessages(prev => {
+              console.log('Processing [END] message');
               const newMessages = [...prev];
               const lastMessage = newMessages[newMessages.length - 1];
               if (lastMessage && lastMessage.type === 'ai' && lastMessage.isPartial) {
@@ -66,6 +68,7 @@ function Chat() {
             setIsLoading(false);
           } else {
             setMessages(prev => {
+              console.log('Appending new AI message chunk:', message.content);
               const newMessages = [...prev];
               const lastMessage = newMessages[newMessages.length - 1];
               if (lastMessage && lastMessage.type === 'ai' && lastMessage.isPartial) {

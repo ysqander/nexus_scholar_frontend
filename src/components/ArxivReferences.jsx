@@ -22,10 +22,11 @@ function ArxivReferences({ paper, selectedReferences, handleReferenceToggle, sho
           </p>
           <div className="max-h-60 overflow-y-auto pr-2">
             <ul className="space-y-2">
-              {arxivRefs.map((ref, index) => (
-                <React.Fragment key={index}>
-                  <li className="flex items-center">
-                    <input
+              {arxivRefs.map((ref, index) => {
+                return (
+                  <React.Fragment key={index}>
+                    <li className="flex items-center">
+                      <input
                       type="checkbox"
                       checked={selectedReferences[ref.arxiv_id] || false}
                       onChange={() => handleReferenceToggle(ref.arxiv_id)}
@@ -37,7 +38,8 @@ function ArxivReferences({ paper, selectedReferences, handleReferenceToggle, sho
                   </li>
                   <hr className="my-2" />
                 </React.Fragment>
-              ))}
+              );
+            })}
             </ul>
           </div>
         </>
