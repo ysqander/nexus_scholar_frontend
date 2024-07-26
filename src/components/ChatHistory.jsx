@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import { useAuth0 } from '@auth0/auth0-react';
 import axios from 'axios';
-import ReactMarkdown from 'react-markdown';
+import ChatDisplay from './ChatDisplay';  // Import the new ChatDisplay component
 
 function ChatHistory() {
   const [chatSessions, setChatSessions] = useState([]);
@@ -13,24 +12,19 @@ function ChatHistory() {
 
   useEffect(() => {
     const fetchChatHistory = async () => {
-      console.log('Fetching chat history...');
       try {
         const token = await getAccessTokenSilently();
-        console.log('Token acquired:', token);
         const response = await axios.get(
           `${import.meta.env.VITE_API_BASE_URL}/api/chat/history`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
-        console.log('Chat history response:', response.data);
         setChatSessions(response.data.chat_history);
       } catch (error) {
-        console.error('Error fetching chat history:', error);
         setError('Failed to load chat history. Please try again later.');
       } finally {
         setLoading(false);
-        console.log('Chat history loading state set to false');
       }
     };
 
@@ -38,16 +32,13 @@ function ChatHistory() {
   }, [getAccessTokenSilently]);
 
   const handleSessionClick = (session) => {
-    console.log('Session clicked:', session);
     setSelectedSession(session);
   };
 
   if (loading) {
-    console.log('Loading chat history...');
     return <div>Loading chat history...</div>;
   }
   if (error) {
-    console.error('Error state:', error);
     return <div className="text-red-500">{error}</div>;
   }
 
@@ -71,10 +62,13 @@ function ChatHistory() {
                   onClick={() => handleSessionClick(session)}
                 >
                   <p className="font-semibold">
-                    Chat Session {session.session_id}
+                    Chat Session {session.session_id.slice(0, 8)}...
                   </p>
                   <p className="text-sm text-gray-500">
                     Started: {new Date(session.created_at).toLocaleString()}
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    Messages: {session.messages.length}
                   </p>
                 </li>
               ))}
@@ -85,31 +79,10 @@ function ChatHistory() {
           {selectedSession ? (
             <div>
               <h2 className="text-2xl font-bold mb-4">
-                Chat Session {selectedSession.session_id}
+                Chat Session {selectedSession.session_id.slice(0, 8)}...
               </h2>
-              <div className="bg-white p-4 rounded-lg shadow">
-                {selectedSession.messages.map((message, index) => (
-                  <div
-                    key={index}
-                    className={`mb-4 ${
-                      message.type === 'user' ? 'text-right' : 'text-left'
-                    }`}
-                  >
-                    <div
-                      className={`inline-block p-2 rounded-lg ${
-                        message.type === 'user'
-                          ? 'bg-blue-500 text-white'
-                          : 'bg-gray-200 text-black'
-                      }`}
-                    >
-                      {message.type === 'ai' ? (
-                        <ReactMarkdown>{message.content}</ReactMarkdown>
-                      ) : (
-                        message.content
-                      )}
-                    </div>
-                  </div>
-                ))}
+              <div className="bg-white rounded-lg shadow">
+                <ChatDisplay messages={selectedSession.messages} />
               </div>
             </div>
           ) : (

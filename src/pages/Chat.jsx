@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth0 } from '@auth0/auth0-react';
 import axios from 'axios';
-import ReactMarkdown from 'react-markdown';
+import ChatDisplay from '../components/ChatDisplay';  // Import the new ChatDisplay component
 
 function Chat() {
   const { sessionId } = useParams();
@@ -10,7 +10,6 @@ function Chat() {
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isTerminateModalOpen, setIsTerminateModalOpen] = useState(false);
-  const messagesEndRef = useRef(null);
   const websocketRef = useRef(null);
   const heartbeatIntervalRef = useRef(null);
   const { getAccessTokenSilently } = useAuth0();
@@ -41,26 +40,21 @@ function Chat() {
       const ws = new WebSocket(`${import.meta.env.VITE_WS_BASE_URL}/ws?token=${token}`);
 
       ws.onopen = () => {
-        console.log('WebSocket connected');
-        // Start sending heartbeats
         heartbeatIntervalRef.current = setInterval(sendHeartbeat, 30000);
       };
 
       ws.onmessage = (event) => {
-        console.log('WebSocket message received:', event.data);
         const message = JSON.parse(event.data);
         if (message.type === 'ai') {
           if (message.content === '[END]') {
-            // End of message signal
             setMessages(prev => {
-              console.log('Processing [END] message');
               const newMessages = [...prev];
               const lastMessage = newMessages[newMessages.length - 1];
               if (lastMessage && lastMessage.type === 'ai' && lastMessage.isPartial) {
                 newMessages[newMessages.length - 1] = { 
                   ...lastMessage, 
                   isPartial: false,
-                  content: lastMessage.content.trim() // Trim any trailing space
+                  content: lastMessage.content.trim()
                 };
               }
               return newMessages;
@@ -68,17 +62,14 @@ function Chat() {
             setIsLoading(false);
           } else {
             setMessages(prev => {
-              console.log('Appending new AI message chunk:', message.content);
               const newMessages = [...prev];
               const lastMessage = newMessages[newMessages.length - 1];
               if (lastMessage && lastMessage.type === 'ai' && lastMessage.isPartial) {
-                // Append new chunk to the existing message
                 newMessages[newMessages.length - 1] = {
                   ...lastMessage,
                   content: lastMessage.content + message.content,
                 };
               } else {
-                // Start a new AI message
                 newMessages.push({ 
                   type: 'ai', 
                   content: message.content, 
@@ -98,8 +89,6 @@ function Chat() {
       };
 
       ws.onclose = () => {
-        console.log('WebSocket disconnected');
-        // Clear heartbeat interval on disconnect
         if (heartbeatIntervalRef.current) {
           clearInterval(heartbeatIntervalRef.current);
         }
@@ -120,10 +109,6 @@ function Chat() {
     };
   }, [getAccessTokenSilently, sendHeartbeat, terminateSession, sessionId]);
 
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
-
   const sendMessage = (e) => {
     e.preventDefault();
     if (!inputMessage.trim() || !websocketRef.current) return;
@@ -143,18 +128,7 @@ function Chat() {
 
   const handleTerminateChat = async () => {
     try {
-      const token = await getAccessTokenSilently();
-      await axios.post(
-        `${import.meta.env.VITE_API_BASE_URL}/api/chat/terminate`,
-        {
-          session_id: sessionId,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      await terminateSession();
       navigate('/contextBuilder');
     } catch (error) {
       console.error('Error terminating chat:', error);
@@ -173,32 +147,9 @@ function Chat() {
           Terminate Chat
         </button>
       </div>
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.map((message, index) => (
-          <div
-            key={index}
-            className={`flex ${
-              message.type === 'user' ? 'justify-end' : 'justify-start'
-            }`}
-          >
-            <div
-              className={`max-w-xs md:max-w-md lg:max-w-lg xl:max-w-xl px-4 py-2 rounded-lg ${
-                message.type === 'user'
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-white text-gray-800'
-              }`}
-            >
-              {message.type === 'ai' ? (
-                <ReactMarkdown>{message.content}</ReactMarkdown>
-              ) : (
-                message.content
-              )}
-              {message.isPartial && <span className="animate-pulse">▋</span>}
-            </div>
-          </div>
-        ))}
-        <div ref={messagesEndRef} />
-      </div>
+      
+      <ChatDisplay messages={messages} isActiveChat={true} />
+
       <form onSubmit={sendMessage} className="p-4 bg-white">
         <div className="flex space-x-2">
           <input
