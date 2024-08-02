@@ -34,9 +34,9 @@ function CacheBuilderModal({ isOpen, onClose, mainPaper, selectedReferences, add
         formData.append('pdfs', pdf, pdf.name); 
       });
 
-     
+    // Creating a research session 
       const response = await axios.post(
-        `${import.meta.env.VITE_API_BASE_URL}/api/create-cache`,
+        `${import.meta.env.VITE_API_BASE_URL}/api/create-research-session`,
         formData,
         {
           headers: {
@@ -46,23 +46,12 @@ function CacheBuilderModal({ isOpen, onClose, mainPaper, selectedReferences, add
         }
       );
 
-      // Start a new chat session
      
-      const chatSessionResponse = await axios.post(
-        `${import.meta.env.VITE_API_BASE_URL}/api/chat/start`,
-        { cached_content_name: response.data.cached_content_name },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
       // Navigate to the chat page
-      navigate(`/chat/${chatSessionResponse.data.session_id}`);
+      navigate(`/chat/${response.data.session_id}`);
     } catch (error) {
-      console.error('Error building cache:', error);
-      setError('Failed to build cache. Please try again.');
+      console.error('Error creating a research session:', error);
+      setError('Failed to create a research session. Please try again.');
     } finally {
       setIsBuildingCache(false);
     }
