@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
 import axios from 'axios';
-import ChatDisplay from './ChatDisplay';  // Import the new ChatDisplay component
+import ChatDisplay from './ChatDisplay';
+import RawCacheModal from './RawCacheModal';  // Import the RawCacheModal component
 
 function ChatHistory() {
   const [chatSessions, setChatSessions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedSession, setSelectedSession] = useState(null);
+  const [isRawCacheModalOpen, setIsRawCacheModalOpen] = useState(false);
+  const [currentRawCacheSessionId, setCurrentRawCacheSessionId] = useState(null);
   const { getAccessTokenSilently } = useAuth0();
 
   useEffect(() => {
@@ -27,7 +30,6 @@ function ChatHistory() {
         setLoading(false);
       }
     };
-
     fetchChatHistory();
   }, [getAccessTokenSilently]);
 
@@ -35,9 +37,16 @@ function ChatHistory() {
     setSelectedSession(session);
   };
 
+  const handleRawCacheClick = (sessionId, e) => {
+    e.stopPropagation();  // Prevent triggering handleSessionClick
+    setCurrentRawCacheSessionId(sessionId);
+    setIsRawCacheModalOpen(true);
+  };
+
   if (loading) {
     return <div>Loading chat history...</div>;
   }
+
   if (error) {
     return <div className="text-red-500">{error}</div>;
   }
@@ -61,15 +70,25 @@ function ChatHistory() {
                   }`}
                   onClick={() => handleSessionClick(session)}
                 >
-                  <p className="font-semibold">
-                    Chat Session {session.session_id.slice(0, 8)}...
-                  </p>
-                  <p className="text-sm text-gray-500">
-                    Started: {new Date(session.created_at).toLocaleString()}
-                  </p>
-                  <p className="text-sm text-gray-500">
-                    Messages: {session.messages.length}
-                  </p>
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <p className="font-semibold">
+                        Chat Session {session.session_id.slice(0, 8)}...
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        Started: {new Date(session.created_at).toLocaleString()}
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        Messages: {session.messages.length}
+                      </p>
+                    </div>
+                    <button
+                      onClick={(e) => handleRawCacheClick(session.session_id, e)}
+                      className="text-blue-500 hover:underline"
+                    >
+                      Raw Cache
+                    </button>
+                  </div>
                 </li>
               ))}
             </ul>
@@ -82,7 +101,10 @@ function ChatHistory() {
                 Chat Session {selectedSession.session_id.slice(0, 8)}...
               </h2>
               <div className="bg-white rounded-lg shadow">
-                <ChatDisplay messages={selectedSession.messages} />
+                <ChatDisplay 
+                  messages={selectedSession.messages}
+                  onRawCacheClick={(e) => handleRawCacheClick(selectedSession.session_id, e)}
+                />
               </div>
             </div>
           ) : (
@@ -90,6 +112,12 @@ function ChatHistory() {
           )}
         </div>
       </div>
+
+      <RawCacheModal
+        sessionId={currentRawCacheSessionId}
+        isOpen={isRawCacheModalOpen}
+        onClose={() => setIsRawCacheModalOpen(false)}
+      />
     </div>
   );
 }

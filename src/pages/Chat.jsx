@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth0 } from '@auth0/auth0-react';
 import axios from 'axios';
-import ChatDisplay from '../components/ChatDisplay';  // Import the new ChatDisplay component
+import ChatDisplay from '../components/ChatDisplay'
+import RawCacheModal from '../components/RawCacheModal';
 
 function Chat() {
   const { sessionId } = useParams();
@@ -14,6 +15,7 @@ function Chat() {
   const heartbeatIntervalRef = useRef(null);
   const { getAccessTokenSilently } = useAuth0();
   const navigate = useNavigate();
+  const [isRawCacheModalOpen, setIsRawCacheModalOpen] = useState(false);
   
   const sendHeartbeat = useCallback(() => {
     if (websocketRef.current && websocketRef.current.readyState === WebSocket.OPEN) {
@@ -136,6 +138,10 @@ function Chat() {
     }
   };
 
+  const handleRawCacheClick = (e) => {
+    e.preventDefault();
+    setIsRawCacheModalOpen(true);
+  };
   return (
     <div className="flex flex-col h-screen bg-gray-100">
       <div className="bg-white shadow-md p-4 flex justify-between items-center">
@@ -148,7 +154,7 @@ function Chat() {
         </button>
       </div>
       
-      <ChatDisplay messages={messages} isActiveChat={true} />
+      <ChatDisplay messages={messages} isActiveChat={true} onRawCacheClick={handleRawCacheClick}/>
 
       <form onSubmit={sendMessage} className="p-4 bg-white">
         <div className="flex space-x-2">
@@ -171,6 +177,11 @@ function Chat() {
           </button>
         </div>
       </form>
+      <RawCacheModal
+        sessionId={sessionId}
+        isOpen={isRawCacheModalOpen}
+        onClose={() => setIsRawCacheModalOpen(false)}
+      />
   
       {/* Terminate Chat Confirmation Modal */}
       {isTerminateModalOpen && (

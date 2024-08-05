@@ -1,7 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 
-function ChatDisplay({ messages, isActiveChat = false }) {
+function ChatDisplay({ messages, isActiveChat = false, onRawCacheClick }) {
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
@@ -36,6 +36,17 @@ function ChatDisplay({ messages, isActiveChat = false }) {
         </div>
       ))}
       <div ref={messagesEndRef} />
+      {isActiveChat && (
+        <div className="text-center mt-4">
+          <a
+            href="#"
+            onClick={onRawCacheClick}
+            className="text-blue-500 hover:underline"
+          >
+            View Raw Cache
+          </a>
+        </div>
+      )}
     </div>
   );
 }
