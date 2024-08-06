@@ -3,7 +3,7 @@ import { Routes, Route, Link } from 'react-router-dom';
 import { useAuth0 } from '@auth0/auth0-react';
 import Home from './pages/Home';
 import ContextBuilder from './pages/ContextBuilder';
-import Profile from './pages/Profile';
+import Account from './pages/Account';
 import Chat from './pages/Chat';
 import ChatHistory from './components/ChatHistory';
 
@@ -25,7 +25,7 @@ function App() {
               <>
                 <Link to="/contextBuilder" className="text-blue-500 hover:text-blue-700">Context Builder</Link>
                 <Link to="/chatHistory" className="text-blue-500 hover:text-blue-700">Chat History</Link>
-                <Link to="/profile" className="text-blue-500 hover:text-blue-700">Profile</Link>
+                <Link to="/account" className="text-blue-500 hover:text-blue-700">Account</Link>
               </>
             )}
             {isAuthenticated ? (
@@ -50,9 +50,10 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/contextBuilder" element={<ContextBuilder />} />
-        <Route path="/profile" element={<Profile />} />
+        <Route path="/account" element={<Account />} />
         <Route path="/chat/:sessionId" element={<Chat />} />
         <Route path="/chatHistory" element={<ChatHistory />} />
+        <Route path="/stripesuccess" element={<StripeSuccess />} />
       </Routes>
     </div>
   );
