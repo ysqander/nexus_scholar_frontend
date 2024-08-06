@@ -6,6 +6,7 @@ import ContextBuilder from './pages/ContextBuilder';
 import Account from './pages/Account';
 import Chat from './pages/Chat';
 import ChatHistory from './components/ChatHistory';
+import StripeSuccess from './pages/StripeSuccess';
 
 function App() {
   const { isLoading, isAuthenticated, loginWithRedirect, logout, user } = useAuth0();

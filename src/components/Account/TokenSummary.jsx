@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useAuth0 } from '@auth0/auth0-react';
 
 function TokenSummary() {
   const [cacheUsage, setCacheUsage] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { getAccessTokenSilently } = useAuth0();
 
   useEffect(() => {
     fetchCacheUsage();
@@ -13,7 +15,14 @@ function TokenSummary() {
   const fetchCacheUsage = async () => {
     try {
       setIsLoading(true);
-      const response = await axios.get('/api/cache-usage');
+      const token = await getAccessTokenSilently({
+        audience: import.meta.env.VITE_AUTH0_AUDIENCE,
+      });
+      const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/cache-usage`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       setCacheUsage(response.data);
     } catch (error) {
       console.error('Error fetching cache usage:', error);
