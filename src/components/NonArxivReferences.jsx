@@ -12,7 +12,7 @@ function NonArxivReferences({ paper, showNonArxivRefs, setShowNonArxivRefs }) {
         onClick={() => setShowNonArxivRefs(!showNonArxivRefs)}
         className="flex items-center justify-between w-full text-left text-xl font-medium mb-2"
       >
-        <span>Non-ArXiv References found</span>
+        <span>Non-ArXiv References found <span className="text-sm text-gray-500">(not in context)</span></span>
         {showNonArxivRefs ? <ChevronUpIcon className="h-5 w-5" /> : <ChevronDownIcon className="h-5 w-5" />}
       </button>
       {showNonArxivRefs && (

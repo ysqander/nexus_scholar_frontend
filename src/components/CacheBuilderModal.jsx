@@ -4,9 +4,10 @@ import { useAuth0 } from '@auth0/auth0-react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { useNavigate } from 'react-router-dom';
 
-function CacheBuilderModal({ isOpen, onClose, mainPaper, selectedReferences, additionalPapers, uploadedPdfs }) {
+function CacheBuilderModal({ isOpen, onClose, mainPaper, selectedReferences, additionalPapers, uploadedPdfs, priceTier }) {
   const [isBuildingCache, setIsBuildingCache] = useState(false);
   const [error, setError] = useState(null);
+  
 
   const { getAccessTokenSilently } = useAuth0();
   const navigate = useNavigate();
@@ -29,7 +30,7 @@ function CacheBuilderModal({ isOpen, onClose, mainPaper, selectedReferences, add
 
       const formData = new FormData();
       formData.append('arxiv_ids', JSON.stringify(allArxivIds));
-
+      formData.append('price_tier', priceTier);
       uploadedPdfs.forEach((pdf, index) => {
         formData.append('pdfs', pdf, pdf.name); 
       });

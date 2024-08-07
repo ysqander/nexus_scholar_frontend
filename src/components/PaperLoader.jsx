@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import CacheBuilderModal from './CacheBuilderModal';
 import PaperLoadingForm from './PaperLoadingForm';
 import MainPaperDisplay from './MainPaperDisplay';
@@ -26,9 +26,10 @@ function PaperLoader() {
     setIsModalOpen,
   } = usePaperLoader();
 
+  const [priceTier, setPriceTier] = useState('base');
+
   return (
     <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
-      <h1 className="text-3xl font-bold mb-8">Paper Context Builder</h1>
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Left Column */}
@@ -55,6 +56,8 @@ function PaperLoader() {
           handleRemoveAdditionalPaper={handleRemoveAdditionalPaper}
           handleRemovePdf={handleRemovePdf}
           setIsModalOpen={setIsModalOpen}
+          priceTier={priceTier}
+          setPriceTier={setPriceTier}
         />
       </div>
 
@@ -65,6 +68,7 @@ function PaperLoader() {
         selectedReferences={selectedReferences}
         additionalPapers={additionalPapers}
         uploadedPdfs={uploadedPdfs}
+        priceTier={priceTier}
       />
 
       {error && <p className="mt-4 text-red-500">{error}</p>}

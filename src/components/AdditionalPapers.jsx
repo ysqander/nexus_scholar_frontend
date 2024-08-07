@@ -10,7 +10,7 @@ function AdditionalPapers({ additionalPapers, handleRemoveAdditionalPaper }) {
       <ul className="space-y-2">
         {additionalPapers.map((paper, index) => (
           <li key={index} className="flex items-center justify-between">
-            <span>{paper.title}</span>
+            <span>{paper.id} - {paper.title}</span>
             <button
               onClick={() => handleRemoveAdditionalPaper(paper.id)}
               className="text-red-500 hover:text-red-700"

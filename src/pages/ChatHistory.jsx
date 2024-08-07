@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
 import axios from 'axios';
-import ChatDisplay from './ChatDisplay';
-import RawCacheModal from './RawCacheModal';  // Import the RawCacheModal component
+import ChatDisplay from '../components/ChatDisplay';
+import RawCacheModal from '../components/RawCacheModal';  // Import the RawCacheModal component
 
 function ChatHistory() {
   const [chatSessions, setChatSessions] = useState([]);
@@ -12,6 +12,7 @@ function ChatHistory() {
   const [isRawCacheModalOpen, setIsRawCacheModalOpen] = useState(false);
   const [currentRawCacheSessionId, setCurrentRawCacheSessionId] = useState(null);
   const { getAccessTokenSilently } = useAuth0();
+  const hasChatSessions = chatSessions && chatSessions.length > 0;
 
   useEffect(() => {
     const fetchChatHistory = async () => {
@@ -56,7 +57,7 @@ function ChatHistory() {
       <h1 className="text-3xl font-bold mb-6">Chat History</h1>
       <div className="flex">
         <div className="w-1/3 pr-4">
-          {chatSessions.length === 0 ? (
+          {!hasChatSessions ? (
             <p>You haven't started any chat sessions yet.</p>
           ) : (
             <ul className="space-y-4">
@@ -95,7 +96,7 @@ function ChatHistory() {
           )}
         </div>
         <div className="w-2/3 pl-4">
-          {selectedSession ? (
+          {hasChatSessions? (selectedSession ? (
             <div>
               <h2 className="text-2xl font-bold mb-4">
                 Chat Session {selectedSession.session_id.slice(0, 8)}...
@@ -109,7 +110,7 @@ function ChatHistory() {
             </div>
           ) : (
             <p>Select a chat session to view the conversation.</p>
-          )}
+          )) :null}
         </div>
       </div>
 

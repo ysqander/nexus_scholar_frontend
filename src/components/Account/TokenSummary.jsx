@@ -32,15 +32,15 @@ function TokenSummary() {
     }
   };
 
-  if (isLoading) return <p>Loading available tokens...</p>;
+  if (isLoading) return <p>Loading available Token Hours...</p>;
   if (error) return <p className="text-red-500">{error}</p>;
   if (!cacheUsage) return null;
 
   return (
     <div className="mb-8 p-4 bg-gray-100 rounded-lg">
-      <h2 className="text-2xl font-bold mb-2">Available Tokens</h2>
-      <p>Base Tokens: {cacheUsage.base_net_tokens}</p>
-      <p>Pro Tokens: {cacheUsage.pro_net_tokens}</p>
+      <h2 className="text-2xl font-bold mb-2">Available Token Hours</h2>
+      <p>Base model: {cacheUsage.base_net_tokens}</p>
+      <p>Pro model: {cacheUsage.pro_net_tokens}</p>
     </div>
   );
 }

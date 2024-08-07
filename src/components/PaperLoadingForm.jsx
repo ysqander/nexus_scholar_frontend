@@ -3,6 +3,14 @@ import { PlusIcon } from '@heroicons/react/24/outline';
 
 function PaperLoadingForm({ arxivId, setArxivId, loading, handleSubmit, handlePdfUpload, handleAddPaper, isLoadingPaper }) {
   const [newPaperId, setNewPaperId] = useState('');
+  
+  const onAddPaper = (e) => {
+    e.preventDefault();
+    if (newPaperId.trim()) {
+      handleAddPaper(newPaperId.trim(), arxivId);
+      setNewPaperId('');
+    }
+  };
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-md mb-8">
@@ -36,11 +44,7 @@ function PaperLoadingForm({ arxivId, setArxivId, loading, handleSubmit, handlePd
             onChange={(e) => handlePdfUpload(Array.from(e.target.files))}
             className="mb-2 lg:mb-0"
           />
-          <form onSubmit={(e) => {
-            e.preventDefault();
-            handleAddPaper(newPaperId);
-            setNewPaperId('');
-          }} className="flex">
+          <form onSubmit={onAddPaper} className="flex">
             <input
               type="text"
               value={newPaperId}

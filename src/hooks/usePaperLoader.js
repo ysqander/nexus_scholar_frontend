@@ -55,8 +55,7 @@ function usePaperLoader() {
     }))
   }
 
-  const handleAddPaper = async (newPaperId) => {
-    e.preventDefault()
+  const handleAddPaper = async (newPaperId, parentPaperId) => {
     if (
       newPaperId &&
       !additionalPapers.some((paper) => paper.id === newPaperId)
@@ -69,10 +68,11 @@ function usePaperLoader() {
           `${import.meta.env.VITE_API_BASE_URL}/api/papers/${newPaperId}/title`,
           {
             headers: { Authorization: `Bearer ${token}` },
+            params: { parent_arxiv_id: parentPaperId },
           }
         )
-        setAdditionalPapers([
-          ...additionalPapers,
+        setAdditionalPapers((prevPapers) => [
+          ...prevPapers,
           { id: newPaperId, title: response.data.title },
         ])
       } catch (error) {

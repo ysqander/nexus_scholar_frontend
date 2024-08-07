@@ -5,7 +5,7 @@ import Home from './pages/Home';
 import ContextBuilder from './pages/ContextBuilder';
 import Account from './pages/Account';
 import Chat from './pages/Chat';
-import ChatHistory from './components/ChatHistory';
+import ChatHistory from './pages/ChatHistory';
 import StripeSuccess from './pages/StripeSuccess';
 
 function App() {
