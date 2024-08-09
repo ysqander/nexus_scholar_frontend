@@ -6,8 +6,8 @@ function Home() {
 
   return (
     <div className="container mx-auto mt-10 text-center">
-      <h1 className="text-4xl font-bold mb-4">Welcome to NexusScholar</h1>
-      <p className="mb-4">Explore and analyze research papers with ease.</p>
+      <h1 className="text-4xl font-bold mb-4">Welcome to Nexus Scholar</h1>
+      <p className="mb-4">Explore and analyze Arxiv research papers with ease.</p>
       {!isAuthenticated && (
         <button
           onClick={() => loginWithRedirect()}

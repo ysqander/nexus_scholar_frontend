@@ -37,8 +37,9 @@ function TokenSummary() {
   if (!cacheUsage) return null;
 
   return (
-    <div className="mb-8 p-4 bg-gray-100 rounded-lg">
-      <h2 className="text-2xl font-bold mb-2">Available Token Hours</h2>
+    <div className="mb-8 bg-gray-100 rounded-lg">
+      <h2 className="text-2xl font-bold">Available Token Hours </h2>
+      <small className="text-gray-600 mb-2">(in million tokens per hour)</small>
       <p>Base model: {cacheUsage.base_net_tokens}</p>
       <p>Pro model: {cacheUsage.pro_net_tokens}</p>
     </div>
