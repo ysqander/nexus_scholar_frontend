@@ -4,6 +4,8 @@ import { useAuth0 } from '@auth0/auth0-react';
 import axios from 'axios';
 import ChatDisplay from '../components/ChatDisplay'
 import RawCacheModal from '../components/RawCacheModal';
+import ExtendSessionModal from '../components/ExtendSessionModal';
+import SessionManager from '../components/SessionManager';
 
 function Chat() {
   const { sessionId } = useParams();
@@ -16,12 +18,9 @@ function Chat() {
   const { getAccessTokenSilently } = useAuth0();
   const navigate = useNavigate();
   const [isRawCacheModalOpen, setIsRawCacheModalOpen] = useState(false);
-  
-  const sendHeartbeat = useCallback(() => {
-    if (websocketRef.current && websocketRef.current.readyState === WebSocket.OPEN) {
-      websocketRef.current.send(JSON.stringify({ type: 'heartbeat', sessionId }));
-    }
-  }, [sessionId]);
+  const [showWarning, setShowWarning] = useState(false);
+  const [isExtensionModalOpen, setIsExtensionModalOpen] = useState(false);
+
 
   const terminateSession = useCallback(async () => {
     try {
@@ -42,7 +41,7 @@ function Chat() {
       const ws = new WebSocket(`${import.meta.env.VITE_WS_BASE_URL}/ws?token=${token}`);
 
       ws.onopen = () => {
-        heartbeatIntervalRef.current = setInterval(sendHeartbeat, 30000);
+        ws.send(JSON.stringify({ type: 'join', sessionId }));
       };
 
       ws.onmessage = (event) => {
@@ -105,11 +104,8 @@ function Chat() {
       if (websocketRef.current) {
         websocketRef.current.close();
       }
-      if (heartbeatIntervalRef.current) {
-        clearInterval(heartbeatIntervalRef.current);
-      }
     };
-  }, [getAccessTokenSilently, sendHeartbeat, terminateSession, sessionId]);
+  }, [getAccessTokenSilently, terminateSession, sessionId]);
 
   const sendMessage = (e) => {
     e.preventDefault();
@@ -142,10 +138,36 @@ function Chat() {
     e.preventDefault();
     setIsRawCacheModalOpen(true);
   };
+
+  const handleSessionWarning = useCallback((timeRemaining) => {
+    setShowWarning(true);
+    setIsExtensionModalOpen(true);
+  }, []);
+
+  const handleSessionExpired = useCallback(() => {
+    setIsTerminateModalOpen(true);
+    // You might want to disable the chat input here
+    setIsLoading(true);
+  }, []);
+
+  const handleExtensionConfirm = useCallback(() => {
+    if (websocketRef.current && websocketRef.current.readyState === WebSocket.OPEN) {
+      websocketRef.current.send(JSON.stringify({ type: 'extend_session', sessionId }));
+    }
+    setIsExtensionModalOpen(false);
+    setShowWarning(false);  // Hide the warning after extension
+  }, [sessionId]);
+
   return (
     <div className="flex flex-col h-screen bg-gray-100">
       <div className="bg-white shadow-md p-4 flex justify-between items-center">
         <h1 className="text-xl font-bold">Chat Session</h1>
+        <SessionManager 
+          sessionId={sessionId}
+          onSessionExpired={handleSessionExpired}
+          onWarning={handleSessionWarning}
+          websocket={websocketRef.current}
+        />
         <button
           onClick={() => setIsTerminateModalOpen(true)}
           className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
@@ -153,7 +175,12 @@ function Chat() {
           Terminate Chat
         </button>
       </div>
-      
+      {showWarning && (
+        <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4" role="alert">
+          <p className="font-bold">Warning</p>
+          <p>Your session is about to expire. Please save any important information.</p>
+        </div>
+      )} 
       <ChatDisplay messages={messages} isActiveChat={true} onRawCacheClick={handleRawCacheClick}/>
 
       <form onSubmit={sendMessage} className="p-4 bg-white">
@@ -208,6 +235,11 @@ function Chat() {
           </div>
         </div>
       )}
+      <ExtendSessionModal
+        isOpen={isExtensionModalOpen}
+        onClose={() => setIsExtensionModalOpen(false)}
+        onConfirm={handleExtensionConfirm}
+      />
     </div>
   );
 }
