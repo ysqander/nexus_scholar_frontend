@@ -4,8 +4,8 @@ import { useAuth0 } from '@auth0/auth0-react';
 import axios from 'axios';
 import ChatDisplay from '../components/ChatDisplay'
 import RawCacheModal from '../components/RawCacheModal';
-import ExtendSessionModal from '../components/ExtendSessionModal';
-import SessionManager from '../components/SessionManager';
+import ExtendSessionModal from '../components/Session/ExtendSessionModal';
+import SessionManager from '../components/Session/SessionManager';
 
 function Chat() {
   const { sessionId } = useParams();
@@ -14,98 +14,121 @@ function Chat() {
   const [isLoading, setIsLoading] = useState(false);
   const [isTerminateModalOpen, setIsTerminateModalOpen] = useState(false);
   const websocketRef = useRef(null);
-  const heartbeatIntervalRef = useRef(null);
   const { getAccessTokenSilently } = useAuth0();
   const navigate = useNavigate();
   const [isRawCacheModalOpen, setIsRawCacheModalOpen] = useState(false);
   const [showWarning, setShowWarning] = useState(false);
   const [isExtensionModalOpen, setIsExtensionModalOpen] = useState(false);
+  const [timeRemaining, setTimeRemaining] = useState(null);
 
-
-  const terminateSession = useCallback(async () => {
-    try {
-      const token = await getAccessTokenSilently();
-      await axios.post(
-        `${import.meta.env.VITE_API_BASE_URL}/api/chat/terminate`,
-        { session_id: sessionId },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-    } catch (error) {
-      console.error('Error terminating session:', error);
-    }
-  }, [getAccessTokenSilently, sessionId]);
-
+  // Open WebSocket connection
   useEffect(() => {
     const connectWebSocket = async () => {
-      const token = await getAccessTokenSilently();
-      const ws = new WebSocket(`${import.meta.env.VITE_WS_BASE_URL}/ws?token=${token}`);
+      try {
+        const token = await getAccessTokenSilently();
+        console.log('Token obtained:', token); // Debug: Log token
 
-      ws.onopen = () => {
-        ws.send(JSON.stringify({ type: 'join', sessionId }));
-      };
+        const wsUrl = `${import.meta.env.VITE_WS_BASE_URL}/ws?token=${encodeURIComponent(token)}&sessionId=${encodeURIComponent(sessionId)}`;
+        console.log('Attempting to connect to WebSocket:', wsUrl); // Debug: Log WebSocket URL
 
-      ws.onmessage = (event) => {
-        const message = JSON.parse(event.data);
-        if (message.type === 'ai') {
-          if (message.content === '[END]') {
-            setMessages(prev => {
-              const newMessages = [...prev];
-              const lastMessage = newMessages[newMessages.length - 1];
-              if (lastMessage && lastMessage.type === 'ai' && lastMessage.isPartial) {
-                newMessages[newMessages.length - 1] = { 
-                  ...lastMessage, 
-                  isPartial: false,
-                  content: lastMessage.content.trim()
-                };
-              }
-              return newMessages;
-            });
-            setIsLoading(false);
-          } else {
-            setMessages(prev => {
-              const newMessages = [...prev];
-              const lastMessage = newMessages[newMessages.length - 1];
-              if (lastMessage && lastMessage.type === 'ai' && lastMessage.isPartial) {
-                newMessages[newMessages.length - 1] = {
-                  ...lastMessage,
-                  content: lastMessage.content + message.content,
-                };
-              } else {
-                newMessages.push({ 
-                  type: 'ai', 
-                  content: message.content, 
-                  isPartial: true 
-                });
-              }
-              return newMessages;
-            });
+        const ws = new WebSocket(wsUrl);
+
+        ws.onopen = () => {
+          console.log('WebSocket connected successfully');
+        };
+
+        ws.onmessage = (event) => {
+          console.log('WebSocket message received:', event.data); // Debug: Log received messages
+          const message = JSON.parse(event.data);
+          if (message.type === 'ai') {
+            if (message.content === '[END]') {
+              setMessages(prev => {
+                const newMessages = [...prev];
+                const lastMessage = newMessages[newMessages.length - 1];
+                if (lastMessage && lastMessage.type === 'ai' && lastMessage.isPartial) {
+                  newMessages[newMessages.length - 1] = { 
+                    ...lastMessage, 
+                    isPartial: false,
+                    content: lastMessage.content.trim()
+                  };
+                }
+                return newMessages;
+              });
+              setIsLoading(false);
+            } else {
+              setMessages(prev => {
+                const newMessages = [...prev];
+                const lastMessage = newMessages[newMessages.length - 1];
+                if (lastMessage && lastMessage.type === 'ai' && lastMessage.isPartial) {
+                  newMessages[newMessages.length - 1] = {
+                    ...lastMessage,
+                    content: lastMessage.content + message.content,
+                  };
+                } else {
+                  newMessages.push({ 
+                    type: 'ai', 
+                    content: message.content, 
+                    isPartial: true 
+                  });
+                }
+                return newMessages;
+              });
+            }
+          } else if (message.type === 'user') {
+            setMessages(prev => [...prev, { type: 'user', content: message.content }]);
+          } else if (message.type === 'session_status') {
+            console.log('Session status update received:', message.content); // Debug: Log session status
+            const status = JSON.parse(message.content);
+            
+            if (status.status === 'warning') {
+              setShowWarning(true);
+              setIsExtensionModalOpen(true);
+              setTimeRemaining(status.timeRemaining);
+            } else if (status.status === 'expired') {
+              handleSessionExpired();
+            }
           }
-        } else if (message.type === 'user') {
-          setMessages(prev => [...prev, { type: 'user', content: message.content }]);
-        }
-      };
+        };
 
-      ws.onerror = (error) => {
-        console.error('WebSocket error:', error);
-      };
+        ws.onerror = (error) => {
+          console.error('WebSocket error:', error);
+        };
 
-      ws.onclose = () => {
-        if (heartbeatIntervalRef.current) {
-          clearInterval(heartbeatIntervalRef.current);
-        }
-      };
+        ws.onclose = (event) => {
+          console.log('WebSocket closed:', event.code, event.reason);
+        };
 
-      websocketRef.current = ws;
+        websocketRef.current = ws;
+      } catch (error) {
+        console.error('Error in connectWebSocket:', error);
+      }
     };
 
     connectWebSocket();
 
     return () => {
       if (websocketRef.current) {
+        console.log('Closing WebSocket connection'); // Debug: Log when closing
         websocketRef.current.close();
       }
     };
-  }, [getAccessTokenSilently, terminateSession, sessionId]);
+  }, [getAccessTokenSilently, sessionId]);
+
+
+  const terminateSession = useCallback(async () => {
+    try {
+      const token = await getAccessTokenSilently();
+      console.log('Terminating session:', sessionId); // Debug: Log termination attempt
+      await axios.post(
+        `${import.meta.env.VITE_API_BASE_URL}/api/chat/terminate`,
+        { session_id: sessionId },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      console.log('Session terminated successfully'); // Debug: Log successful termination
+    } catch (error) {
+      console.error('Error terminating session:', error);
+    }
+  }, [getAccessTokenSilently, sessionId]);
 
   const sendMessage = (e) => {
     e.preventDefault();
@@ -120,6 +143,7 @@ function Chat() {
       sessionId: sessionId
     };
 
+    console.log('Sending message:', message); // Debug: Log outgoing message
     websocketRef.current.send(JSON.stringify(message));
     setInputMessage('');
   };
@@ -130,7 +154,6 @@ function Chat() {
       navigate('/contextBuilder');
     } catch (error) {
       console.error('Error terminating chat:', error);
-      // Handle error (e.g., show an error message to the user)
     }
   };
 
@@ -140,22 +163,26 @@ function Chat() {
   };
 
   const handleSessionWarning = useCallback((timeRemaining) => {
+    console.log('Session warning received, time remaining:', timeRemaining); // Debug: Log warning
     setShowWarning(true);
     setIsExtensionModalOpen(true);
+    setTimeRemaining(timeRemaining);
   }, []);
 
   const handleSessionExpired = useCallback(() => {
+    console.log('Session expired'); // Debug: Log expiration
     setIsTerminateModalOpen(true);
-    // You might want to disable the chat input here
     setIsLoading(true);
   }, []);
 
   const handleExtensionConfirm = useCallback(() => {
     if (websocketRef.current && websocketRef.current.readyState === WebSocket.OPEN) {
+      console.log('Sending session extension request'); // Debug: Log extension request
       websocketRef.current.send(JSON.stringify({ type: 'extend_session', sessionId }));
     }
     setIsExtensionModalOpen(false);
-    setShowWarning(false);  // Hide the warning after extension
+    setShowWarning(false);
+    setTimeRemaining(null);
   }, [sessionId]);
 
   return (
@@ -163,11 +190,11 @@ function Chat() {
       <div className="bg-white shadow-md p-4 flex justify-between items-center">
         <h1 className="text-xl font-bold">Chat Session</h1>
         <SessionManager 
-          sessionId={sessionId}
-          onSessionExpired={handleSessionExpired}
-          onWarning={handleSessionWarning}
-          websocket={websocketRef.current}
-        />
+        sessionId={sessionId}
+        onSessionExpired={handleSessionExpired}
+        onWarning={handleSessionWarning}
+        websocket={websocketRef.current}
+      />
         <button
           onClick={() => setIsTerminateModalOpen(true)}
           className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
@@ -180,7 +207,7 @@ function Chat() {
           <p className="font-bold">Warning</p>
           <p>Your session is about to expire. Please save any important information.</p>
         </div>
-      )} 
+      )}
       <ChatDisplay messages={messages} isActiveChat={true} onRawCacheClick={handleRawCacheClick}/>
 
       <form onSubmit={sendMessage} className="p-4 bg-white">
@@ -210,7 +237,6 @@ function Chat() {
         onClose={() => setIsRawCacheModalOpen(false)}
       />
   
-      {/* Terminate Chat Confirmation Modal */}
       {isTerminateModalOpen && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
           <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
@@ -239,6 +265,7 @@ function Chat() {
         isOpen={isExtensionModalOpen}
         onClose={() => setIsExtensionModalOpen(false)}
         onConfirm={handleExtensionConfirm}
+        timeRemaining={timeRemaining}
       />
     </div>
   );
