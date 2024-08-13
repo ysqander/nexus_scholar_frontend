@@ -12,6 +12,17 @@ function ChatDisplay({ messages, isActiveChat = false, onRawCacheClick }) {
 
   return (
     <div className="flex-1 overflow-y-auto p-4 space-y-4">
+       {isActiveChat && (
+        <div className="text-center mt-4">
+          <a
+            href="#"
+            onClick={onRawCacheClick}
+            className="text-blue-500 hover:underline"
+          >
+            View Raw Cache
+          </a>
+        </div>
+      )}
       {messages.map((message, index) => (
         <div
           key={index}
@@ -36,17 +47,7 @@ function ChatDisplay({ messages, isActiveChat = false, onRawCacheClick }) {
         </div>
       ))}
       <div ref={messagesEndRef} />
-      {isActiveChat && (
-        <div className="text-center mt-4">
-          <a
-            href="#"
-            onClick={onRawCacheClick}
-            className="text-blue-500 hover:underline"
-          >
-            View Raw Cache
-          </a>
-        </div>
-      )}
+     
     </div>
   );
 }

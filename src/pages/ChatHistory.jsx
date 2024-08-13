@@ -52,6 +52,13 @@ function ChatHistory() {
     return <div className="text-red-500">{error}</div>;
   }
 
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    return isNaN(date.getTime()) ? 'Invalid Date' : date.toISOString().split('T')[0];
+  };
+
+
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6">Chat History</h1>
@@ -82,6 +89,22 @@ function ChatHistory() {
                       <p className="text-sm text-gray-500">
                         Messages: {session.messages.length}
                       </p>
+                      {/* New details */}
+                      <p className="text-sm text-gray-500">
+                        Duration (minutes): {session.chat_duration}
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        Tokens Used: {session.token_count_used.toLocaleString()}
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        Price Tier: {session.price_tier}
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        Token millions per Hour: {(session.token_hours_used).toFixed(4)}
+                      </p>
+                      <p className="text-sm text-gray-500">
+                      Date recorded (End of chat): {formatDate(session.termination_time)}
+                      </p>
                     </div>
                     <button
                       onClick={(e) => handleRawCacheClick(session.session_id, e)}
@@ -96,11 +119,18 @@ function ChatHistory() {
           )}
         </div>
         <div className="w-2/3 pl-4">
-          {hasChatSessions? (selectedSession ? (
+          {hasChatSessions ? (selectedSession ? (
             <div>
               <h2 className="text-2xl font-bold mb-4">
                 Chat Session {selectedSession.session_id.slice(0, 8)}...
               </h2>
+              {/* New details for selected session */}
+              <div className="mb-4 text-sm text-gray-600">
+                <p>Duration: {selectedSession.chat_duration}</p>
+                <p>Tokens Used: {selectedSession.token_count_used}</p>
+                <p>Price Tier: {selectedSession.price_tier}</p>
+                <p>Token Hours: {selectedSession.token_hours_used}</p>
+              </div>
               <div className="bg-white rounded-lg shadow">
                 <ChatDisplay 
                   messages={selectedSession.messages}
@@ -110,7 +140,7 @@ function ChatHistory() {
             </div>
           ) : (
             <p>Select a chat session to view the conversation.</p>
-          )) :null}
+          )) : null}
         </div>
       </div>
 

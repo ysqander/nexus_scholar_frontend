@@ -6,6 +6,7 @@ import ChatDisplay from '../components/ChatDisplay'
 import RawCacheModal from '../components/RawCacheModal';
 import ExtendSessionModal from '../components/Session/ExtendSessionModal';
 import SessionManager from '../components/Session/SessionManager';
+import { Link } from 'react-router-dom';
 
 function Chat() {
   const { sessionId } = useParams();
@@ -19,7 +20,10 @@ function Chat() {
   const [isRawCacheModalOpen, setIsRawCacheModalOpen] = useState(false);
   const [showWarning, setShowWarning] = useState(false);
   const [isExtensionModalOpen, setIsExtensionModalOpen] = useState(false);
+  const [sessionStatus, setSessionStatus] = useState('active');
   const [timeRemaining, setTimeRemaining] = useState(null);
+  const [isSessionActive, setIsSessionActive] = useState(true);
+  
 
   // Open WebSocket connection
   useEffect(() => {
@@ -35,60 +39,7 @@ function Chat() {
 
         ws.onopen = () => {
           console.log('WebSocket connected successfully');
-        };
-
-        ws.onmessage = (event) => {
-          console.log('WebSocket message received:', event.data); // Debug: Log received messages
-          const message = JSON.parse(event.data);
-          if (message.type === 'ai') {
-            if (message.content === '[END]') {
-              setMessages(prev => {
-                const newMessages = [...prev];
-                const lastMessage = newMessages[newMessages.length - 1];
-                if (lastMessage && lastMessage.type === 'ai' && lastMessage.isPartial) {
-                  newMessages[newMessages.length - 1] = { 
-                    ...lastMessage, 
-                    isPartial: false,
-                    content: lastMessage.content.trim()
-                  };
-                }
-                return newMessages;
-              });
-              setIsLoading(false);
-            } else {
-              setMessages(prev => {
-                const newMessages = [...prev];
-                const lastMessage = newMessages[newMessages.length - 1];
-                if (lastMessage && lastMessage.type === 'ai' && lastMessage.isPartial) {
-                  newMessages[newMessages.length - 1] = {
-                    ...lastMessage,
-                    content: lastMessage.content + message.content,
-                  };
-                } else {
-                  newMessages.push({ 
-                    type: 'ai', 
-                    content: message.content, 
-                    isPartial: true 
-                  });
-                }
-                return newMessages;
-              });
-            }
-          } else if (message.type === 'user') {
-            setMessages(prev => [...prev, { type: 'user', content: message.content }]);
-          } else if (message.type === 'session_status') {
-            console.log('Session status update received:', message.content); // Debug: Log session status
-            const status = JSON.parse(message.content);
-            
-            if (status.status === 'warning') {
-              setShowWarning(true);
-              setIsExtensionModalOpen(true);
-              setTimeRemaining(status.timeRemaining);
-            } else if (status.status === 'expired') {
-              handleSessionExpired();
-            }
-          }
-        };
+        }
 
         ws.onerror = (error) => {
           console.error('WebSocket error:', error);
@@ -113,6 +64,84 @@ function Chat() {
       }
     };
   }, [getAccessTokenSilently, sessionId]);
+
+  useEffect(() => {
+    if (websocketRef.current) {
+      websocketRef.current.onmessage = (event) => {
+        console.log('WebSocket message received:', event.data);
+        const message = JSON.parse(event.data);
+        
+        switch (message.type) {
+          case 'ai':
+            handleAIMessage(message);
+            break;
+          case 'user':
+            handleUserMessage(message);
+            break;
+          case 'session_status':
+            handleSessionStatus(message);
+            break;
+          default:
+            console.log('Unknown message type:', message.type);
+        }
+      };
+    }
+  }, [websocketRef.current]);
+
+  const handleAIMessage = (message) => {
+    if (message.content === '[END]') {
+      setMessages(prev => {
+        const newMessages = [...prev];
+        const lastMessage = newMessages[newMessages.length - 1];
+        if (lastMessage && lastMessage.type === 'ai' && lastMessage.isPartial) {
+          newMessages[newMessages.length - 1] = { 
+            ...lastMessage, 
+            isPartial: false,
+            content: lastMessage.content.trim()
+          };
+        }
+        return newMessages;
+      });
+      setIsLoading(false);
+    } else {
+      setMessages(prev => {
+        const newMessages = [...prev];
+        const lastMessage = newMessages[newMessages.length - 1];
+        if (lastMessage && lastMessage.type === 'ai' && lastMessage.isPartial) {
+          newMessages[newMessages.length - 1] = {
+            ...lastMessage,
+            content: lastMessage.content + message.content,
+          };
+        } else {
+          newMessages.push({ 
+            type: 'ai', 
+            content: message.content, 
+            isPartial: true 
+          });
+        }
+        return newMessages;
+      });
+    }
+  };
+
+  const handleUserMessage = (message) => {
+    setMessages(prev => [...prev, { type: 'user', content: message.content }]);
+  };
+
+  const handleSessionStatus = (message) => {
+    console.log('Session status update received:', message.content); // Debug: Log session status
+    const status = JSON.parse(message.content);
+    
+    setSessionStatus(status.status);
+    setTimeRemaining(status.timeRemaining);
+
+    if (status.status === 'warning') {
+      setShowWarning(true);
+      setIsExtensionModalOpen(true);
+    } else if (status.status === 'expired') {
+      handleSessionExpired();
+    }
+  };
 
 
   const terminateSession = useCallback(async () => {
@@ -151,6 +180,7 @@ function Chat() {
   const handleTerminateChat = async () => {
     try {
       await terminateSession();
+      setIsSessionActive(false);
       navigate('/contextBuilder');
     } catch (error) {
       console.error('Error terminating chat:', error);
@@ -171,8 +201,12 @@ function Chat() {
 
   const handleSessionExpired = useCallback(() => {
     console.log('Session expired'); // Debug: Log expiration
-    setIsTerminateModalOpen(true);
-    setIsLoading(true);
+    setIsExtensionModalOpen(false);
+    setIsTerminateModalOpen(false);
+    setMessages([]);
+    setIsLoading(false);
+    setSessionStatus('expired');
+    setIsSessionActive(false);
   }, []);
 
   const handleExtensionConfirm = useCallback(() => {
@@ -187,6 +221,24 @@ function Chat() {
 
   return (
     <div className="flex flex-col h-screen bg-gray-100">
+      {sessionStatus === 'expired' ? (
+        <div className="flex-grow flex items-center justify-center">
+          <div className="text-center p-8 bg-white rounded-lg shadow-md">
+            <h2 className="text-2xl font-bold mb-4">Session Expired</h2>
+            <p className="mb-4">If you wish to restart a session, go to the Context Builder.</p>
+            <div className="space-y-2">
+              <Link to="/contextBuilder" className="block bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
+                Context Builder
+              </Link>
+              <p className="mb-4">You can find the history of this chat in Chat History </p>
+              <Link to="/chatHistory" className="block bg-gray-300 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-400">
+                Chat History
+              </Link>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <>
       <div className="bg-white shadow-md p-4 flex justify-between items-center">
         <h1 className="text-xl font-bold">Chat Session</h1>
         <SessionManager 
@@ -194,6 +246,13 @@ function Chat() {
         onSessionExpired={handleSessionExpired}
         onWarning={handleSessionWarning}
         websocket={websocketRef.current}
+        sessionStatus={sessionStatus}
+        isActiveChat={isSessionActive}
+      />
+       <RawCacheModal
+        sessionId={sessionId}
+        isOpen={isRawCacheModalOpen}
+        onClose={() => setIsRawCacheModalOpen(false)}
       />
         <button
           onClick={() => setIsTerminateModalOpen(true)}
@@ -202,12 +261,7 @@ function Chat() {
           Terminate Chat
         </button>
       </div>
-      {showWarning && (
-        <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4" role="alert">
-          <p className="font-bold">Warning</p>
-          <p>Your session is about to expire. Please save any important information.</p>
-        </div>
-      )}
+
       <ChatDisplay messages={messages} isActiveChat={true} onRawCacheClick={handleRawCacheClick}/>
 
       <form onSubmit={sendMessage} className="p-4 bg-white">
@@ -231,12 +285,7 @@ function Chat() {
           </button>
         </div>
       </form>
-      <RawCacheModal
-        sessionId={sessionId}
-        isOpen={isRawCacheModalOpen}
-        onClose={() => setIsRawCacheModalOpen(false)}
-      />
-  
+     
       {isTerminateModalOpen && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
           <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
@@ -267,6 +316,8 @@ function Chat() {
         onConfirm={handleExtensionConfirm}
         timeRemaining={timeRemaining}
       />
+      </>
+    )}
     </div>
   );
 }

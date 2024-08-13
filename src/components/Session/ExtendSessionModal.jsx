@@ -1,27 +1,26 @@
 import React from 'react';
 
 const ExtendSessionModal = ({ isOpen, onClose, onConfirm, timeRemaining }) => {
-  console.log('ExtendSessionModal rendered with isOpen:', isOpen);
   
   if (!isOpen) {
-    console.log('ExtendSessionModal not open, returning null');
     return null;
   }
 
   const handleClose = () => {
-    console.log('ExtendSessionModal close button clicked');
     onClose();
   };
 
   const handleConfirm = () => {
-    console.log('ExtendSessionModal confirm button clicked');
     onConfirm();
   };
 
   const formatTimeRemaining = (seconds) => {
+    if (typeof seconds !== 'number' || isNaN(seconds)) {
+      return '';
+    }
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
-    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+    return `${minutes} min ${remainingSeconds.toString().padStart(2, '0')} sec`;
   };
 
   console.log('Rendering ExtendSessionModal content');
