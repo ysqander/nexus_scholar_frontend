@@ -23,6 +23,7 @@ function Chat() {
   const [sessionStatus, setSessionStatus] = useState('active');
   const [timeRemaining, setTimeRemaining] = useState(null);
   const [isSessionActive, setIsSessionActive] = useState(true);
+  const [isAiComposing, setIsAiComposing] = useState(false);
   
 
   // Open WebSocket connection
@@ -89,6 +90,7 @@ function Chat() {
   }, [websocketRef.current]);
 
   const handleAIMessage = (message) => {
+    setIsAiComposing(false);
     if (message.content === '[END]') {
       setMessages(prev => {
         const newMessages = [...prev];
@@ -164,6 +166,7 @@ function Chat() {
     if (!inputMessage.trim() || !websocketRef.current) return;
 
     setIsLoading(true);
+    setIsAiComposing(true);
     setMessages(prev => [...prev, { type: 'user', content: inputMessage }]);
 
     const message = {
@@ -263,6 +266,11 @@ function Chat() {
       </div>
 
       <ChatDisplay messages={messages} isActiveChat={true} onRawCacheClick={handleRawCacheClick}/>
+      {isAiComposing && (
+        <div className="p-4 bg-gray-100">
+          <p className="text-gray-600">AI is composing reply...</p>
+        </div>
+      )}
 
       <form onSubmit={sendMessage} className="p-4 bg-white">
         <div className="flex space-x-2">

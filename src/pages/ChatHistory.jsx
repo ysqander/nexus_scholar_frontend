@@ -58,6 +58,12 @@ function ChatHistory() {
     return isNaN(date.getTime()) ? 'Invalid Date' : date.toISOString().split('T')[0];
   };
 
+  const formatDuration = (seconds) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = Math.round(seconds % 60);
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  };
+
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -84,14 +90,11 @@ function ChatHistory() {
                         Chat Session {session.session_id.slice(0, 8)}...
                       </p>
                       <p className="text-sm text-gray-500">
-                        Started: {new Date(session.created_at).toLocaleString()}
-                      </p>
-                      <p className="text-sm text-gray-500">
                         Messages: {session.messages.length}
                       </p>
                       {/* New details */}
                       <p className="text-sm text-gray-500">
-                        Duration (minutes): {session.chat_duration}
+                        Duration (minutes): {formatDuration(session.chat_duration)}
                       </p>
                       <p className="text-sm text-gray-500">
                         Tokens Used: {session.token_count_used.toLocaleString()}
@@ -125,12 +128,7 @@ function ChatHistory() {
                 Chat Session {selectedSession.session_id.slice(0, 8)}...
               </h2>
               {/* New details for selected session */}
-              <div className="mb-4 text-sm text-gray-600">
-                <p>Duration: {selectedSession.chat_duration}</p>
-                <p>Tokens Used: {selectedSession.token_count_used}</p>
-                <p>Price Tier: {selectedSession.price_tier}</p>
-                <p>Token Hours: {selectedSession.token_hours_used}</p>
-              </div>
+              <div className="mb-4 text-sm text-gray-600">Duration: {formatDuration(selectedSession.chat_duration)} | Tokens Used: {selectedSession.token_count_used.toLocaleString()} | Price Tier: {selectedSession.price_tier} | Token Hours: {selectedSession.token_hours_used.toFixed(4)}</div>
               <div className="bg-white rounded-lg shadow">
                 <ChatDisplay 
                   messages={selectedSession.messages}
