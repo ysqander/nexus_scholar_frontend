@@ -6,6 +6,7 @@ import ChatDisplay from '../components/ChatDisplay'
 import RawCacheModal from '../components/RawCacheModal';
 import ExtendSessionModal from '../components/Session/ExtendSessionModal';
 import SessionManager from '../components/Session/SessionManager';
+import LowCreditWarningModal from '../components/Session/LowCreditWarning';
 import { Link } from 'react-router-dom';
 
 function Chat() {
@@ -24,6 +25,7 @@ function Chat() {
   const [timeRemaining, setTimeRemaining] = useState(null);
   const [isSessionActive, setIsSessionActive] = useState(true);
   const [isAiComposing, setIsAiComposing] = useState(false);
+  const [isLowCreditModalOpen, setIsLowCreditModalOpen] = useState(false);
   
 
   // Open WebSocket connection
@@ -81,6 +83,18 @@ function Chat() {
             break;
           case 'session_status':
             handleSessionStatus(message);
+            break;
+            case 'credit_warning':
+              console.log('Received credit_warning message:', message);
+              try {
+                setIsLowCreditModalOpen(true);
+                console.log('Updated state with new credit value and opened modal');
+              } catch (error) {
+                console.error('Error parsing credit_warning message:', error);
+              }
+              break;
+          case 'credit_update':
+            setIsLowCreditModalOpen(false);
             break;
           default:
             console.log('Unknown message type:', message.type);
@@ -161,6 +175,7 @@ function Chat() {
     }
   }, [getAccessTokenSilently, sessionId]);
 
+     
   const sendMessage = (e) => {
     e.preventDefault();
     if (!inputMessage.trim() || !websocketRef.current) return;
@@ -265,7 +280,7 @@ function Chat() {
         </button>
       </div>
 
-      <ChatDisplay messages={messages} isActiveChat={true} onRawCacheClick={handleRawCacheClick}/>
+      <ChatDisplay messages={messages} isActiveChat={isSessionActive} onRawCacheClick={handleRawCacheClick}/>
       {isAiComposing && (
         <div className="p-4 bg-gray-100">
           <p className="text-gray-600">AI is composing reply...</p>
@@ -323,6 +338,10 @@ function Chat() {
         onClose={() => setIsExtensionModalOpen(false)}
         onConfirm={handleExtensionConfirm}
         timeRemaining={timeRemaining}
+      />
+      <LowCreditWarningModal
+        isOpen={isLowCreditModalOpen}
+        onClose={() => setIsLowCreditModalOpen(false)}
       />
       </>
     )}
