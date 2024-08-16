@@ -5,11 +5,13 @@ const SessionManager = ({ sessionId, onSessionExpired, onWarning, websocket, ses
   
   const onSessionExpiredRef = useRef(onSessionExpired);
   const onWarningRef = useRef(onWarning);
+  const websocketRef = useRef(websocket);
 
   useEffect(() => {
     onSessionExpiredRef.current = onSessionExpired;
     onWarningRef.current = onWarning;
-  }, [onSessionExpired, onWarning]);
+    websocketRef.current = websocket;
+  }, [onSessionExpired, onWarning, websocket]);
 
   useEffect(() => {
     if (sessionStatus === 'warning') {
@@ -21,24 +23,22 @@ const SessionManager = ({ sessionId, onSessionExpired, onWarning, websocket, ses
 
   // Request status update every 10 seconds
   useEffect(() => {
-    let statusCheck;
-    if (isActiveChat && websocket) {
-      console.log('SessionManager useEffect triggered', { isActiveChat, websocket });
-      statusCheck = setInterval(() => {
-        if (websocket && websocket.readyState === WebSocket.OPEN) {
-          console.log('Sending status check request'); // Debug
-          websocket.send(JSON.stringify({ type: 'get_session_status', sessionId }));
-        }
-      }, 10000);
-    }
+    const checkStatus = () => {
+      if (websocketRef.current && websocketRef.current.readyState === WebSocket.OPEN) {
+        console.log('Sending status check request'); // Debug
+        websocketRef.current.send(JSON.stringify({ type: 'get_session_status', sessionId }));
+      }
+    };
+
+    const statusCheck = setInterval(checkStatus, 10000);
+    checkStatus(); // Perform an immediate check when the component mounts
+
 
     return () => {
-      if (statusCheck) {
-        clearInterval(statusCheck);
-      }
+      clearInterval(statusCheck);
     }
 
-  }, [websocket, sessionId, isActiveChat]);
+  }, [ sessionId ]);
 
   return null;
 };

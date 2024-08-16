@@ -46,13 +46,17 @@ function CacheBuilderModal({ isOpen, onClose, mainPaper, selectedReferences, add
           },
         }
       );
-
-     
       // Navigate to the chat page
       navigate(`/chat/${response.data.session_id}`);
     } catch (error) {
       console.error('Error creating a research session:', error);
-      setError('Failed to create a research session. Please try again.');
+      if (error.response && error.response.data && error.response.data.error) {
+        setError(error.response.data.error);
+      } else if (error.message) {
+        setError(error.message);
+      } else {
+        setError('Failed to create a research session. Please try again.');
+      }
     } finally {
       setIsBuildingCache(false);
     }

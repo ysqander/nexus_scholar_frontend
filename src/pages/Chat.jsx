@@ -42,6 +42,7 @@ function Chat() {
 
         ws.onopen = () => {
           console.log('WebSocket connected successfully');
+          websocketRef.current = ws;
         }
 
         ws.onerror = (error) => {
@@ -51,8 +52,6 @@ function Chat() {
         ws.onclose = (event) => {
           console.log('WebSocket closed:', event.code, event.reason);
         };
-
-        websocketRef.current = ws;
       } catch (error) {
         console.error('Error in connectWebSocket:', error);
       }
