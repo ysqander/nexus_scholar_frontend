@@ -8,6 +8,7 @@ import Chat from './pages/Chat';
 import ChatHistory from './pages/ChatHistory';
 import StripeSuccess from './pages/StripeSuccess';
 import Start from './pages/Start';
+import ErrorBoundary from './components/Errors/ErrorBoundary';
 
 function App() {
   const { isLoading, isAuthenticated, loginWithRedirect, logout, user } = useAuth0();
@@ -17,6 +18,7 @@ function App() {
   }
 
   return (
+    <ErrorBoundary>
     <div className="min-h-screen bg-gray-100">
       <nav className="bg-white shadow-sm p-4">
         <div className="flex justify-between items-center">
@@ -49,17 +51,19 @@ function App() {
           </div>
         </div>
       </nav>
-
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/start" element={<Start />} />
-        <Route path="/contextBuilder" element={<ContextBuilder />} />
-        <Route path="/account" element={<Account />} />
-        <Route path="/chat/:sessionId" element={<Chat />} />
-        <Route path="/chatHistory" element={<ChatHistory />} />
-        <Route path="/stripesuccess" element={<StripeSuccess />} />
-      </Routes>
-    </div>
+      <ErrorBoundary>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/start" element={<Start />} />
+          <Route path="/contextBuilder" element={<ContextBuilder />} />
+          <Route path="/account" element={<Account />} />
+          <Route path="/chat/:sessionId" element={<Chat />} />
+          <Route path="/chatHistory" element={<ChatHistory />} />
+          <Route path="/stripesuccess" element={<StripeSuccess />} />
+        </Routes>
+      </ErrorBoundary>
+      </div>
+    </ErrorBoundary>
   );
 }
 
