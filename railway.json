@@ -1,7 +1,7 @@
 {
     "build": {
       "builder": "NIXPACKS",
-      "buildCommand": "pnpm install && build"
+      "buildCommand": "pnpm install && pnpm build"
     },
     "deploy": {
       "startCommand": "pnpm preview",
