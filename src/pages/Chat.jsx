@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useAuth0 } from '@auth0/auth0-react'
-import axios from 'axios'
+import axiosWithRetry from '../utils/axiosConfig'
 import ChatDisplay from '../components/ChatDisplay'
 import RawCacheModal from '../components/RawCacheModal'
 import ExtendSessionModal from '../components/Session/ExtendSessionModal'
@@ -168,8 +168,8 @@ function Chat() {
     try {
       const token = await getAccessTokenSilently()
       console.log('Terminating session:', sessionId) // Debug: Log termination attempt
-      await axios.post(
-        `${import.meta.env.VITE_API_BASE_URL}/api/chat/terminate`,
+      await axiosWithRetry.post(
+        `/api/chat/terminate`,
         { session_id: sessionId },
         { headers: { Authorization: `Bearer ${token}` } }
       )

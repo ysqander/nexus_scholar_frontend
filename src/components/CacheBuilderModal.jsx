@@ -1,43 +1,54 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { useAuth0 } from '@auth0/auth0-react';
-import { XMarkIcon } from '@heroicons/react/24/outline';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react'
+import axiosWithRetry from '../utils/axiosConfig'
+import { useAuth0 } from '@auth0/auth0-react'
+import { XMarkIcon } from '@heroicons/react/24/outline'
+import { useNavigate } from 'react-router-dom'
 
-function CacheBuilderModal({ isOpen, onClose, mainPaper, selectedReferences, additionalPapers, uploadedPdfs, priceTier }) {
-  const [isBuildingCache, setIsBuildingCache] = useState(false);
-  const [error, setError] = useState(null);
-  
+function CacheBuilderModal({
+  isOpen,
+  onClose,
+  mainPaper,
+  selectedReferences,
+  additionalPapers,
+  uploadedPdfs,
+  priceTier,
+}) {
+  const [isBuildingCache, setIsBuildingCache] = useState(false)
+  const [error, setError] = useState(null)
 
-  const { getAccessTokenSilently } = useAuth0();
-  const navigate = useNavigate();
+  const { getAccessTokenSilently } = useAuth0()
+  const navigate = useNavigate()
 
   useEffect(() => {
     if (isOpen) {
-      handleBuildCache();
+      handleBuildCache()
     }
-  }, [isOpen]);
+  }, [isOpen])
 
   const handleBuildCache = async () => {
-    setIsBuildingCache(true);
-    setError(null);
+    setIsBuildingCache(true)
+    setError(null)
 
     try {
-      const token = await getAccessTokenSilently();
-      const selectedArxivIds = Object.keys(selectedReferences).filter(id => selectedReferences[id]);
-      const additionalArxivIds = additionalPapers.map(paper => paper.id);
-      const allArxivIds = mainPaper ? [mainPaper.id, ...selectedArxivIds, ...additionalArxivIds] : [...selectedArxivIds, ...additionalArxivIds];
+      const token = await getAccessTokenSilently()
+      const selectedArxivIds = Object.keys(selectedReferences).filter(
+        (id) => selectedReferences[id]
+      )
+      const additionalArxivIds = additionalPapers.map((paper) => paper.id)
+      const allArxivIds = mainPaper
+        ? [mainPaper.id, ...selectedArxivIds, ...additionalArxivIds]
+        : [...selectedArxivIds, ...additionalArxivIds]
 
-      const formData = new FormData();
-      formData.append('arxiv_ids', JSON.stringify(allArxivIds));
-      formData.append('price_tier', priceTier);
+      const formData = new FormData()
+      formData.append('arxiv_ids', JSON.stringify(allArxivIds))
+      formData.append('price_tier', priceTier)
       uploadedPdfs.forEach((pdf, index) => {
-        formData.append('pdfs', pdf, pdf.name); 
-      });
+        formData.append('pdfs', pdf, pdf.name)
+      })
 
-    // Creating a research session 
-      const response = await axios.post(
-        `${import.meta.env.VITE_API_BASE_URL}/api/create-research-session`,
+      // Creating a research session
+      const response = await axiosWithRetry.post(
+        `/api/create-research-session`,
         formData,
         {
           headers: {
@@ -45,30 +56,32 @@ function CacheBuilderModal({ isOpen, onClose, mainPaper, selectedReferences, add
             Authorization: `Bearer ${token}`,
           },
         }
-      );
+      )
       // Navigate to the chat page
-      navigate(`/chat/${response.data.session_id}`);
+      navigate(`/chat/${response.data.session_id}`)
     } catch (error) {
-      console.error('Error creating a research session:', error);
+      console.error('Error creating a research session:', error)
       if (error.response && error.response.data && error.response.data.error) {
-        setError(error.response.data.error);
+        setError(error.response.data.error)
       } else if (error.message) {
-        setError(error.message);
+        setError(error.message)
       } else {
-        setError('Failed to create a research session. Please try again.');
+        setError('Failed to create a research session. Please try again.')
       }
     } finally {
-      setIsBuildingCache(false);
+      setIsBuildingCache(false)
     }
-  };
+  }
 
-  if (!isOpen) return null;
+  if (!isOpen) return null
 
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
       <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
         <div className="mt-3 text-center">
-          <h3 className="text-lg leading-6 font-medium text-gray-900">Building Cache</h3>
+          <h3 className="text-lg leading-6 font-medium text-gray-900">
+            Building Cache
+          </h3>
           <button
             onClick={onClose}
             className="absolute top-0 right-0 mt-4 mr-4 text-gray-400 hover:text-gray-500"
@@ -79,8 +92,12 @@ function CacheBuilderModal({ isOpen, onClose, mainPaper, selectedReferences, add
             {isBuildingCache ? (
               <div className="flex flex-col items-center">
                 <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500"></div>
-                <p className="mt-4 text-sm text-gray-500">Building your paper context...</p>
-                <p className="mt-2 text-xs text-gray-400">This may take a few moments</p>
+                <p className="mt-4 text-sm text-gray-500">
+                  Building your paper context...
+                </p>
+                <p className="mt-2 text-xs text-gray-400">
+                  This may take a few moments
+                </p>
               </div>
             ) : error ? (
               <p className="text-red-500">{error}</p>
@@ -91,7 +108,7 @@ function CacheBuilderModal({ isOpen, onClose, mainPaper, selectedReferences, add
         </div>
       </div>
     </div>
-  );
+  )
 }
 
-export default CacheBuilderModal;
+export default CacheBuilderModal

@@ -1,7 +1,7 @@
 // src/hooks/usePaperLoader.js
 import { useState } from 'react'
 import { useAuth0 } from '@auth0/auth0-react'
-import axios from 'axios'
+import axiosWithRetry from '../utils/axiosConfig'
 
 function usePaperLoader() {
   const [arxivId, setArxivId] = useState('')
@@ -22,8 +22,8 @@ function usePaperLoader() {
     setError(null)
     try {
       const token = await getAccessTokenSilently()
-      const response = await axios.get(
-        `${import.meta.env.VITE_API_BASE_URL}/api/papers/${arxivId}`,
+      const response = await axiosWithRetry.get(
+        `/api/papers/${arxivId}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -64,8 +64,8 @@ function usePaperLoader() {
       setError(null)
       try {
         const token = await getAccessTokenSilently()
-        const response = await axios.get(
-          `${import.meta.env.VITE_API_BASE_URL}/api/papers/${newPaperId}/title`,
+        const response = await axiosWithRetry.get(
+          `/api/papers/${newPaperId}/title`,
           {
             headers: { Authorization: `Bearer ${token}` },
             params: { parent_arxiv_id: parentPaperId },

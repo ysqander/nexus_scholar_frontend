@@ -1,39 +1,39 @@
-import React, { useState, useEffect } from 'react';
-import { useAuth0 } from '@auth0/auth0-react';
-import axios from 'axios';
+import React, { useState, useEffect } from 'react'
+import { useAuth0 } from '@auth0/auth0-react'
+import axiosWithRetry from '../utils/axiosConfig'
 
 const RawCacheModal = ({ sessionId, isOpen, onClose }) => {
-  const [content, setContent] = useState('');
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const { getAccessTokenSilently } = useAuth0();
+  const [content, setContent] = useState('')
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const { getAccessTokenSilently } = useAuth0()
 
   useEffect(() => {
     const fetchRawCache = async () => {
-      if (!isOpen) return;
+      if (!isOpen) return
 
       try {
-        setIsLoading(true);
-        const token = await getAccessTokenSilently();
-        const response = await axios.get(
-          `${import.meta.env.VITE_API_BASE_URL}/api/raw-cache?session_id=${sessionId}`,
+        setIsLoading(true)
+        const token = await getAccessTokenSilently()
+        const response = await axiosWithRetry.get(
+          `/api/raw-cache?session_id=${sessionId}`,
           {
-            headers: { Authorization: `Bearer ${token}` }
+            headers: { Authorization: `Bearer ${token}` },
           }
-        );
-        setContent(response.data.content);
-        setIsLoading(false);
+        )
+        setContent(response.data.content)
+        setIsLoading(false)
       } catch (err) {
-        console.error('Error fetching raw cache:', err);
-        setError('Failed to load content. Please try again later.');
-        setIsLoading(false);
+        console.error('Error fetching raw cache:', err)
+        setError('Failed to load content. Please try again later.')
+        setIsLoading(false)
       }
-    };
+    }
 
-    fetchRawCache();
-  }, [sessionId, getAccessTokenSilently, isOpen]);
+    fetchRawCache()
+  }, [sessionId, getAccessTokenSilently, isOpen])
 
-  if (!isOpen) return null;
+  if (!isOpen) return null
 
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
@@ -58,7 +58,7 @@ const RawCacheModal = ({ sessionId, isOpen, onClose }) => {
         )}
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default RawCacheModal;
+export default RawCacheModal
