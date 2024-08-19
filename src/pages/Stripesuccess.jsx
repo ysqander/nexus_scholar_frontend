@@ -9,24 +9,24 @@ function StripeSuccess() {
   const [accountInfo, setAccountInfo] = useState(null)
 
   useEffect(() => {
-    fetchUpdatedAccountInfo()
-  }, [])
-
-  const fetchUpdatedAccountInfo = async () => {
-    try {
-      const token = await getAccessTokenSilently()
-      const response = await axiosWithRetry.get(`/api/cache-usage`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      setAccountInfo(response.data)
-      setLoading(false)
-    } catch (error) {
-      console.error('Error fetching account info:', error)
-      setLoading(false)
+    const fetchUpdatedAccountInfo = async () => {
+      try {
+        const token = await getAccessTokenSilently()
+        const response = await axiosWithRetry.get(`/api/cache-usage`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        setAccountInfo(response.data)
+        setLoading(false)
+      } catch (error) {
+        console.error('Error fetching account info:', error)
+        setLoading(false)
+      }
     }
-  }
+
+    fetchUpdatedAccountInfo()
+  }, [getAccessTokenSilently])
 
   if (loading) {
     return (
