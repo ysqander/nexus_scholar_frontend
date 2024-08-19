@@ -6,7 +6,7 @@ import ContextBuilder from './pages/ContextBuilder'
 import Account from './pages/Account'
 import Chat from './pages/Chat'
 import ChatHistory from './pages/ChatHistory'
-import StripeSuccess from './pages/StripeSuccess'
+import Success from './pages/Success'
 import Start from './pages/Start'
 import ErrorBoundary from './components/Errors/ErrorBoundary'
 
@@ -80,7 +80,7 @@ function App() {
             <Route path="/account" element={<Account />} />
             <Route path="/chat/:sessionId" element={<Chat />} />
             <Route path="/chatHistory" element={<ChatHistory />} />
-            <Route path="/stripesuccess" element={<StripeSuccess />} />
+            <Route path="/stripesuccess" element={<Success />} />
           </Routes>
         </ErrorBoundary>
       </div>

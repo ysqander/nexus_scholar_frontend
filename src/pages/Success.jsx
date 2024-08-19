@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import axiosWithRetry from '../utils/axiosConfig'
 import { useAuth0 } from '@auth0/auth0-react'
 
-function StripeSuccess() {
+function Success() {
   const { getAccessTokenSilently } = useAuth0()
   const [loading, setLoading] = useState(true)
   const [accountInfo, setAccountInfo] = useState(null)
@@ -66,4 +66,4 @@ function StripeSuccess() {
   )
 }
 
-export default StripeSuccess
+export default Success
