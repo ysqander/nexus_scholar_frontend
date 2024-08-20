@@ -9,7 +9,7 @@ import ChatHistory from './pages/ChatHistory'
 import Success from './pages/Success'
 import Start from './pages/Start'
 import ErrorBoundary from './components/Errors/ErrorBoundary'
-
+import HealthCheck from './pages/HealthCheck'
 function App() {
   const { isLoading, isAuthenticated, loginWithRedirect, logout, user } =
     useAuth0()
@@ -81,6 +81,7 @@ function App() {
             <Route path="/chat/:sessionId" element={<Chat />} />
             <Route path="/chatHistory" element={<ChatHistory />} />
             <Route path="/stripesuccess" element={<Success />} />
+            <Route path="/healthcheck" element={<HealthCheck />} />
           </Routes>
         </ErrorBoundary>
       </div>
