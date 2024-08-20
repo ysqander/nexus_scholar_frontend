@@ -20,7 +20,7 @@ COPY . .
 RUN pnpm build
 
 # Expose the port the app runs on
-EXPOSE 4173
+EXPOSE 8080
 
 # Command to run the application
-CMD ["pnpm", "preview", "--host", "0.0.0.0", "--port", "$PORT"]
+CMD pnpm preview --host 0.0.0.0 --port ${PORT:-8080}
