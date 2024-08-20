@@ -4,8 +4,6 @@
     "dockerfilePath": "./Dockerfile"
   },
   "deploy": {
-    "healthcheckPath": "/healthcheck",
-    "healthcheckTimeout": 100,
     "restartPolicyType": "ON_FAILURE"
   }
 }
