@@ -23,4 +23,4 @@ RUN pnpm build
 EXPOSE 4173
 
 # Command to run the application
-CMD ["pnpm", "preview", "--host", "0.0.0.0"]
+CMD ["pnpm", "preview", "--host", "0.0.0.0", "--port", "$PORT"]
