@@ -20,11 +20,14 @@ function ContextBuilder() {
         const token = await getAccessTokenSilently({
           audience: import.meta.env.VITE_AUTH0_AUDIENCE,
         })
-        const response = await axios.get(`/api/private`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
+        const response = await axios.get(
+          `${import.meta.env.VITE_API_BASE_URL}/api/private`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        )
         setMessage(response.data.message)
       } catch (error) {
         console.error('Error fetching protected message:', error)

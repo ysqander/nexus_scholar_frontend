@@ -16,7 +16,9 @@ const RawCacheModal = ({ sessionId, isOpen, onClose }) => {
         setIsLoading(true)
         const token = await getAccessTokenSilently()
         const response = await axios.get(
-          `/api/raw-cache?session_id=${sessionId}`,
+          `${
+            import.meta.env.VITE_API_BASE_URL
+          }/api/raw-cache?session_id=${sessionId}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }

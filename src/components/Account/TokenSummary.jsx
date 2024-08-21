@@ -27,11 +27,14 @@ function TokenSummary() {
       const token = await getAccessTokenSilently({
         audience: import.meta.env.VITE_AUTH0_AUDIENCE,
       })
-      const response = await axios.get(`/api/cache-usage`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_BASE_URL}/api/cache-usage`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
       console.log('Raw response data:', JSON.stringify(response.data, null, 2))
       setCacheUsage(response.data)
     } catch (error) {

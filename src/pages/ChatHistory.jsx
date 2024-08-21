@@ -18,9 +18,12 @@ function ChatHistory() {
     const fetchChatHistory = async () => {
       try {
         const token = await getAccessTokenSilently()
-        const response = await axios.get(`/api/chat/history`, {
-          headers: { Authorization: `Bearer ${token}` },
-        })
+        const response = await axios.get(
+          `${import.meta.env.VITE_API_BASE_URL}/api/chat/history`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        )
         setChatSessions(response.data.chat_history)
       } catch (error) {
         setError('Failed to load chat history. Please try again later.')

@@ -22,7 +22,7 @@ function usePaperLoader() {
     setError(null)
     try {
       const token = await getAccessTokenSilently()
-      const response = await axios.get(`/api/papers/${arxivId}`, {
+      const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/papers/${arxivId}`, {
           headers: { Authorization: `Bearer ${token}` },
         }
       )
@@ -63,7 +63,7 @@ function usePaperLoader() {
       try {
         const token = await getAccessTokenSilently()
         const response = await axios.get(
-          `/api/papers/${newPaperId}/title`,
+          `${import.meta.env.VITE_API_BASE_URL}/api/papers/${newPaperId}/title`,
           {
             headers: { Authorization: `Bearer ${token}` },
             params: { parent_arxiv_id: parentPaperId },

@@ -12,11 +12,14 @@ function Success() {
     const fetchUpdatedAccountInfo = async () => {
       try {
         const token = await getAccessTokenSilently()
-        const response = await axios.get(`/api/cache-usage`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
+        const response = await axios.get(
+          `${import.meta.env.VITE_API_BASE_URL}/api/cache-usage`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        )
         setAccountInfo(response.data)
         setLoading(false)
       } catch (error) {
