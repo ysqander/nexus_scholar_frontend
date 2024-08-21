@@ -1,4 +1,5 @@
 import React from 'react'
+import xIcon from '../assets/icons8-x-90.svg'
 
 function Start() {
   return (
@@ -52,13 +53,25 @@ function Start() {
       </p>
       <p className="mb-4">
         {' '}
-        We do not charge for the tokens used during the chat currently
+        We do not charge for the tokens used during the chat.
       </p>
       <h2 className="text-2xl font-semibold mb-2">Cache Persistence</h2>
       <p className="mb-4">
         Context caches only persist for the duration of the chat. When you
         terminate your chat the cached context is deleted. But you can refer to
         the raw text used as cache in the chat history page.
+      </p>
+      <h2 className="text-2xl font-semibold mb-2">Contact</h2>
+      <p className="mb-4">
+        If you have questions, reach out to Ysqander{' '}
+        <a
+          href="https://twitter.com/Ysqander"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="ml-"
+        >
+          <img src={xIcon} alt="Twitter Icon" className="inline h-7 w-7" />
+        </a>
       </p>
     </div>
   )
