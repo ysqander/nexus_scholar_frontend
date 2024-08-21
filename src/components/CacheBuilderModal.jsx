@@ -48,7 +48,7 @@ function CacheBuilderModal({
 
       // Creating a research session
       const response = await axios.post(
-        `/api/create-research-session`,
+        `${import.meta.env.VITE_API_BASE_URL}/api/create-research-session`,
         formData,
         {
           headers: {

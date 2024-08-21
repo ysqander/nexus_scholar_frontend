@@ -169,7 +169,7 @@ function Chat() {
       const token = await getAccessTokenSilently()
       console.log('Terminating session:', sessionId) // Debug: Log termination attempt
       await axios.post(
-        `/api/chat/terminate`,
+        `${import.meta.env.VITE_API_BASE_URL}/api/chat/terminate`,
         { session_id: sessionId },
         { headers: { Authorization: `Bearer ${token}` } }
       )

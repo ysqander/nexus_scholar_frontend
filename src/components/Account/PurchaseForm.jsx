@@ -12,7 +12,7 @@ function PurchaseForm() {
     const token = await getAccessTokenSilently()
     try {
       const response = await axios.post(
-        `/api/purchase-cache-volume`,
+        `${import.meta.env.VITE_API_BASE_URL}/api/purchase-cache-volume`,
         {
           price_tier: plan,
           token_hours: tokenHours.toString(),
