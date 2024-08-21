@@ -1,5 +1,5 @@
 import React from 'react'
-import { Routes, Route, Link } from 'react-router-dom'
+import { Routes, Route, Link, useNavigate } from 'react-router-dom'
 import { useAuth0 } from '@auth0/auth0-react'
 import Home from './pages/Home'
 import ContextBuilder from './pages/ContextBuilder'
@@ -13,9 +13,18 @@ import HealthCheck from './pages/HealthCheck'
 function App() {
   const { isLoading, isAuthenticated, loginWithRedirect, logout, user } =
     useAuth0()
-
+  const navigate = useNavigate()
   if (isLoading) {
     return <div>Loading...</div>
+  }
+
+  const handleLogout = () => {
+    logout({
+      logoutParams: {
+        returnTo: window.location.origin,
+      },
+    })
+    navigate('/')
   }
 
   return (
@@ -56,7 +65,7 @@ function App() {
               )}
               {isAuthenticated ? (
                 <button
-                  onClick={() => logout({ returnTo: window.location.origin })}
+                  onClick={handleLogout}
                   className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
                 >
                   Log Out
