@@ -3,7 +3,7 @@ import xIcon from '../assets/icons8-x-90.svg'
 
 function Start() {
   return (
-    <div className="container mx-auto mt-10">
+    <div className="container mx-auto mt-6 pb-6">
       <h1 className="text-3xl font-bold mb-4">Welcome to Nexus Scholar</h1>
       <p className="mb-4">
         This app allows you to build a large context of arXiv research papers
