@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useAuth0 } from '@auth0/auth0-react'
 import ChatDisplay from '../components/ChatDisplay'
 import RawCacheModal from '../components/RawCacheModal' // Import the RawCacheModal component
-import axiosWithRetry from '../utils/axiosConfig'
+import axios from 'axios'
 
 function ChatHistory() {
   const [chatSessions, setChatSessions] = useState([])
@@ -18,7 +18,7 @@ function ChatHistory() {
     const fetchChatHistory = async () => {
       try {
         const token = await getAccessTokenSilently()
-        const response = await axiosWithRetry.get(`/api/chat/history`, {
+        const response = await axios.get(`/api/chat/history`, {
           headers: { Authorization: `Bearer ${token}` },
         })
         setChatSessions(response.data.chat_history)

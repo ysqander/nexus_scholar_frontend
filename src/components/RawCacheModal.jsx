@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useAuth0 } from '@auth0/auth0-react'
-import axiosWithRetry from '../utils/axiosConfig'
+import axios from 'axios'
 
 const RawCacheModal = ({ sessionId, isOpen, onClose }) => {
   const [content, setContent] = useState('')
@@ -15,7 +15,7 @@ const RawCacheModal = ({ sessionId, isOpen, onClose }) => {
       try {
         setIsLoading(true)
         const token = await getAccessTokenSilently()
-        const response = await axiosWithRetry.get(
+        const response = await axios.get(
           `/api/raw-cache?session_id=${sessionId}`,
           {
             headers: { Authorization: `Bearer ${token}` },

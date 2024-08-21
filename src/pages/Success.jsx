@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import axiosWithRetry from '../utils/axiosConfig'
+import axios from 'axios'
 import { useAuth0 } from '@auth0/auth0-react'
 
 function Success() {
@@ -12,7 +12,7 @@ function Success() {
     const fetchUpdatedAccountInfo = async () => {
       try {
         const token = await getAccessTokenSilently()
-        const response = await axiosWithRetry.get(`/api/cache-usage`, {
+        const response = await axios.get(`/api/cache-usage`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

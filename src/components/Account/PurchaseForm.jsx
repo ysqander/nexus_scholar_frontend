@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import axiosWithRetry from '../../utils/axiosConfig'
+import axios from 'axios'
 import { loadStripe } from '@stripe/stripe-js'
 import { useAuth0 } from '@auth0/auth0-react'
 
@@ -11,7 +11,7 @@ function PurchaseForm() {
   const handlePurchase = async () => {
     const token = await getAccessTokenSilently()
     try {
-      const response = await axiosWithRetry.post(
+      const response = await axios.post(
         `/api/purchase-cache-volume`,
         {
           price_tier: plan,

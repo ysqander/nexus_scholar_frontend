@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useAuth0 } from '@auth0/auth0-react'
-import axiosWithRetry from '../../utils/axiosConfig'
+import axios from 'axios'
 
 function TokenSummary() {
   const [cacheUsage, setCacheUsage] = useState(null)
@@ -27,7 +27,7 @@ function TokenSummary() {
       const token = await getAccessTokenSilently({
         audience: import.meta.env.VITE_AUTH0_AUDIENCE,
       })
-      const response = await axiosWithRetry.get(`/api/cache-usage`, {
+      const response = await axios.get(`/api/cache-usage`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -36,6 +36,7 @@ function TokenSummary() {
       setCacheUsage(response.data)
     } catch (error) {
       console.error('Error fetching cache usage:', error)
+      console.error('Error response:', error.response)
       setError('Failed to fetch available tokens. Please try again later.')
     } finally {
       setIsLoading(false)

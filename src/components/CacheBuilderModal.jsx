@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import axiosWithRetry from '../utils/axiosConfig'
+import axios from 'axios'
 import { useAuth0 } from '@auth0/auth0-react'
 import { XMarkIcon } from '@heroicons/react/24/outline'
 import { useNavigate } from 'react-router-dom'
@@ -47,7 +47,7 @@ function CacheBuilderModal({
       })
 
       // Creating a research session
-      const response = await axiosWithRetry.post(
+      const response = await axios.post(
         `/api/create-research-session`,
         formData,
         {
