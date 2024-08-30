@@ -49,13 +49,19 @@ function PaperLoadingForm({
           Add additional papers to context
         </h3>
         <div className="flex flex-col space-y-2">
-          <input
-            type="file"
-            multiple
-            accept=".pdf"
-            onChange={(e) => handlePdfUpload(Array.from(e.target.files))}
-            className="w-full retro-font text-xs"
-          />
+          <label className="custom-file-upload">
+            <input
+              type="file"
+              multiple
+              accept=".pdf"
+              onChange={(e) => handlePdfUpload(Array.from(e.target.files))}
+              className="hidden"
+            />
+            <span className="w-full retro-text text-xs bg-gray-200 text-black px-3 py-2 rounded border-2 border-gray-300 hover:bg-gray-300 cursor-pointer inline-block">
+              Select PDF files
+            </span>
+          </label>
+          <p className="text-lg font-bold text-center">or</p>
           <div className="flex w-full">
             <input
               type="text"
