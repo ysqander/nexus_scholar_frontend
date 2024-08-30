@@ -4,7 +4,7 @@ import xIcon from '../assets/icons8-x-90.svg'
 function Start() {
   return (
     <div className="w-full mt-4 px-4 lg:px-8">
-      <h1 className="text-3xl font-bold mb-4 retro-font">
+      <h1 className="text-2xl font-bold mb-4 retro-font">
         Welcome to Nexus Scholar
       </h1>
       <div className="max-w-4xl">
@@ -13,7 +13,7 @@ function Start() {
           and your own provided PDFs to chat with using the Gemini 1.5 Google
           models.
         </p>
-        <h2 className="text-2xl font-semibold mb-2 retro-font">
+        <h2 className="text-xl font-semibold mb-2 retro-font">
           How to Use the Context Builder
         </h2>
         <p className="mb-4 retro-text-light text-gray-700">
@@ -23,7 +23,7 @@ function Start() {
           any other arXiv paper by ID or include your own PDFs (which can be
           non-arXiv papers) to the context as well.
         </p>
-        <h2 className="text-2xl font-semibold mb-2 retro-font">Model Types</h2>
+        <h2 className="text-xl font-semibold mb-2 retro-font">Model Types</h2>
         <p className="mb-4 retro-text-light text-gray-700">
           Choose between the Base and Pro models to build the context cache and
           start chatting. Currently the base and pro models are Google Gemini
@@ -34,7 +34,7 @@ function Start() {
           (needle in haystack) and at summarizing. For more sophisticated work,
           use the Pro model.
         </p>
-        <h2 className="text-2xl font-semibold mb-2 retro-font">
+        <h2 className="text-xl font-semibold mb-2 retro-font">
           How Much Does It Cost?
         </h2>
         <p className="mb-4 retro-text-light text-gray-700">
@@ -59,7 +59,7 @@ function Start() {
         <p className="mb-4 retro-text-light text-gray-700">
           We do not charge for the tokens used during the chat.
         </p>
-        <h2 className="text-2xl font-semibold mb-2 retro-font">
+        <h2 className="text-xl font-semibold mb-2 retro-font">
           Cache Persistence
         </h2>
         <p className="mb-4 retro-text-light text-gray-700">
@@ -67,7 +67,7 @@ function Start() {
           terminate your chat the cached context is deleted. But you can refer
           to the raw text used as cache in the chat history page.
         </p>
-        <h2 className="text-2xl font-semibold mb-2 retro-font">Contact</h2>
+        <h2 className="text-xl font-semibold mb-2 retro-font">Contact</h2>
         <p className="mb-4 retro-text-light text-gray-700">
           If you have questions, reach out to Ysqander{' '}
           <a
