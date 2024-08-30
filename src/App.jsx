@@ -1,6 +1,7 @@
-import React from 'react'
-import { Routes, Route, Link, useNavigate } from 'react-router-dom'
+import { Routes, Route, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth0 } from '@auth0/auth0-react'
+import { useEffect } from 'react'
+import RetroMacLayout from './components/RetroMacLayout'
 import Home from './pages/Home'
 import ContextBuilder from './pages/ContextBuilder'
 import Account from './pages/Account'
@@ -10,13 +11,17 @@ import Success from './pages/Success'
 import Start from './pages/Start'
 import ErrorBoundary from './components/Errors/ErrorBoundary'
 import HealthCheck from './pages/HealthCheck'
+
 function App() {
-  const { isLoading, isAuthenticated, loginWithRedirect, logout, user } =
-    useAuth0()
+  const { isLoading, isAuthenticated, loginWithRedirect, logout } = useAuth0()
   const navigate = useNavigate()
-  if (isLoading) {
-    return <div>Loading...</div>
-  }
+  const location = useLocation()
+
+  useEffect(() => {
+    if (isAuthenticated && location.pathname === '/') {
+      navigate('/start')
+    }
+  }, [isAuthenticated, location, navigate])
 
   const handleLogout = () => {
     logout({
@@ -27,60 +32,17 @@ function App() {
     navigate('/')
   }
 
+  const handleLogin = () => {
+    loginWithRedirect()
+  }
+
   return (
     <ErrorBoundary>
-      <div className="min-h-screen bg-gray-100">
-        <nav className="bg-white shadow-sm p-4">
-          <div className="flex justify-between items-center">
-            <div>Nexus Scholar</div>
-            <div className="space-x-4">
-              {/* <Link to="/" className="text-blue-500 hover:text-blue-700">Home</Link> */}
-              {isAuthenticated && (
-                <>
-                  <Link
-                    to="/start"
-                    className="text-blue-500 hover:text-blue-700"
-                  >
-                    Start
-                  </Link>
-                  <Link
-                    to="/contextBuilder"
-                    className="text-blue-500 hover:text-blue-700"
-                  >
-                    Context Builder
-                  </Link>
-                  <Link
-                    to="/chatHistory"
-                    className="text-blue-500 hover:text-blue-700"
-                  >
-                    Chat History
-                  </Link>
-                  <Link
-                    to="/account"
-                    className="text-blue-500 hover:text-blue-700"
-                  >
-                    Account
-                  </Link>
-                </>
-              )}
-              {isAuthenticated ? (
-                <button
-                  onClick={handleLogout}
-                  className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
-                >
-                  Log Out
-                </button>
-              ) : (
-                <button
-                  onClick={() => loginWithRedirect()}
-                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                >
-                  Log In / Sign up
-                </button>
-              )}
-            </div>
-          </div>
-        </nav>
+      <RetroMacLayout
+        isAuthenticated={isAuthenticated}
+        onLogin={handleLogin}
+        onLogout={handleLogout}
+      >
         <ErrorBoundary>
           <Routes>
             <Route path="/" element={<Home />} />
@@ -93,7 +55,7 @@ function App() {
             <Route path="/healthcheck" element={<HealthCheck />} />
           </Routes>
         </ErrorBoundary>
-      </div>
+      </RetroMacLayout>
     </ErrorBoundary>
   )
 }

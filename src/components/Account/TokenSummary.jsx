@@ -60,21 +60,32 @@ function TokenSummary() {
     return Object.entries(cacheUsage.chat_history).map(([month, tiers]) => (
       <React.Fragment key={month}>
         <tr className="bg-gray-200">
-          <td colSpan="6" className="font-bold py-2 px-4">
+          <td
+            colSpan="6"
+            className="font-bold py-2 px-4 retro-font text-gray-800"
+          >
             {month}
           </td>
         </tr>
         {Object.entries(tiers).flatMap(([tier, chats]) =>
           chats.map((chat, index) => (
             <tr key={`${month}-${tier}-${index}`} className="border-b">
-              <td className="py-2 px-4">{chat.session_id}</td>
-              <td className="py-2 px-4">{formatDuration(chat.duration)}</td>
-              <td className="py-2 px-4">{chat.tokens_used.toLocaleString()}</td>
-              <td className="py-2 px-4">{formatDate(chat.termination_time)}</td>
-              <td className="py-2 px-4">
+              <td className="py-2 px-4 retro-text-light text-gray-700">
+                {chat.session_id}
+              </td>
+              <td className="py-2 px-4 retro-text-light text-gray-700">
+                {formatDuration(chat.duration)}
+              </td>
+              <td className="py-2 px-4 retro-text-light text-gray-700">
+                {chat.tokens_used.toLocaleString()}
+              </td>
+              <td className="py-2 px-4 retro-text-light text-gray-700">
+                {formatDate(chat.termination_time)}
+              </td>
+              <td className="py-2 px-4 retro-text-light text-gray-700">
                 {tier === 'pro' ? chat.token_hours_used.toFixed(4) : '-'}
               </td>
-              <td className="py-2 px-4">
+              <td className="py-2 px-4 retro-text-light text-gray-700">
                 {tier === 'base' ? chat.token_hours_used.toFixed(4) : '-'}
               </td>
             </tr>
@@ -86,23 +97,45 @@ function TokenSummary() {
   }
 
   return (
-    <div className="mb-8 bg-gray-100 rounded-lg p-4">
-      <h2 className="text-2xl font-bold">Available Token Hours</h2>
-      <small className="text-gray-600 mb-2">(in million tokens per hour)</small>
-      <p>Base model: {cacheUsage.base_net_tokens.toFixed(2)}</p>
-      <p>Pro model: {cacheUsage.pro_net_tokens.toFixed(2)}</p>
+    <div className="bg-white p-6 rounded-lg shadow-md border-2 border-gray-300">
+      <h2 className="text-xl font-bold retro-font">Available Token Hours</h2>
+      <small className="text-gray-600 block retro-text">
+        (in million tokens per hour)
+      </small>
+      <div className="flex mt-4 mb-4">
+        <p className="mr-4 text-gray-700 retro-text">
+          Base model:{' '}
+          <span className="retro-font">
+            {cacheUsage.base_net_tokens.toFixed(2)}
+          </span>
+        </p>
+        <p className="text-gray-700 retro-text">
+          Pro model:{' '}
+          <span className="retro-font">
+            {cacheUsage.pro_net_tokens.toFixed(2)}
+          </span>
+        </p>
+      </div>
 
-      <h3 className="text-xl font-bold mt-4 mb-2">Cache Usage by Chat</h3>
+      <h3 className="text-lg font-bold mt-6 mb-4 retro-font">
+        Cache Usage by Chat
+      </h3>
       <div className="overflow-x-auto">
-        <table className="w-full">
+        <table className="w-full text-sm">
           <thead>
             <tr className="bg-gray-200">
-              <th className="py-2 px-4">Session ID</th>
-              <th className="py-2 px-4">Duration</th>
-              <th className="py-2 px-4">Tokens Used</th>
-              <th className="py-2 px-4">Termination Date</th>
-              <th className="py-2 px-4">Token Hours Used (Pro)</th>
-              <th className="py-2 px-4">Token Hours Used (Base)</th>
+              <th className="py-2 px-4 text-left retro-text">Session ID</th>
+              <th className="py-2 px-4 text-left retro-text">Duration</th>
+              <th className="py-2 px-4 text-left retro-text">Tokens Used</th>
+              <th className="py-2 px-4 text-left retro-text">
+                Termination Date
+              </th>
+              <th className="py-2 px-4 text-left retro-text">
+                Token Hours (Pro)
+              </th>
+              <th className="py-2 px-4 text-left retro-text">
+                Token Hours (Base)
+              </th>
             </tr>
           </thead>
           <tbody>{renderChatHistory()}</tbody>

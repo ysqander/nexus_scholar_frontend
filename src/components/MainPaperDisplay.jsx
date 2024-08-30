@@ -1,43 +1,48 @@
 // src/components/MainPaperDisplay.jsx
-import React from 'react';
-import { DocumentTextIcon } from '@heroicons/react/24/outline';
+import React from 'react'
+import { DocumentTextIcon } from '@heroicons/react/24/outline'
 
 function MainPaperDisplay({ paper }) {
-  if (!paper) return null;
+  if (!paper) return null
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold">Main Paper</h2>
-      <div className="flex justify-between items-start mb-4">
-        <h3 className="text-md font-medium mb-2">{paper.title}</h3>
-        {paper.pdf_url && (
-          <a
-            href={paper.pdf_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-500 hover:text-blue-700"
-          >
-            <DocumentTextIcon className="h-6 w-6" />
-          </a>
+    <div className="mt-4 p-4 bg-gray-100 rounded-lg border-2 border-gray-400 shadow-inner">
+      <h2 className="text- font-bold mb-2 retro-font">Main Paper</h2>
+      <div className="bg-white p-4 rounded border border-gray-300">
+        <div className="flex justify-between items-start mb-4">
+          <h3 className="text-xs font-medium retro-font">{paper.title}</h3>
+          {paper.pdf_url && (
+            <a
+              href={paper.pdf_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gray-600 hover:text-gray-800"
+            >
+              <DocumentTextIcon className="h-6 w-6" />
+            </a>
+          )}
+        </div>
+        {paper.authors && (
+          <p className="mb-4 text-xs">
+            <span className="font-semibold retro-font">Authors:</span>{' '}
+            {Array.isArray(paper.authors)
+              ? paper.authors.join(', ')
+              : paper.authors}
+          </p>
+        )}
+        {paper.abstract && (
+          <details className="mt-4">
+            <summary className="text-xs font-medium cursor-pointer retro-font">
+              Abstract
+            </summary>
+            <p className="mt-2 retro-text-light text-sm bg-gray-50 p-3 rounded border border-gray-200">
+              {paper.abstract}
+            </p>
+          </details>
         )}
       </div>
-      {paper.authors && (
-        <p className="mb-4">
-          <strong>Authors:</strong> {
-            Array.isArray(paper.authors) 
-              ? paper.authors.join(', ')
-              : paper.authors
-          }
-        </p>
-      )}
-      {paper.abstract && (
-        <details>
-          <summary className="text-lg font-medium cursor-pointer">Abstract</summary>
-          <p className="mt-2">{paper.abstract}</p>
-        </details>
-      )}
     </div>
-  );
+  )
 }
 
-export default MainPaperDisplay;
+export default MainPaperDisplay

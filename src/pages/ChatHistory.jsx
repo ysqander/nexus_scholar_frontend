@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { useAuth0 } from '@auth0/auth0-react'
-import ChatDisplay from '../components/ChatDisplay'
-import RawCacheModal from '../components/RawCacheModal' // Import the RawCacheModal component
 import axios from 'axios'
+import ChatModal from '../components/ChatModal'
+import RawCacheModal from '../components/RawCacheModal'
 
 function ChatHistory() {
   const [chatSessions, setChatSessions] = useState([])
@@ -35,7 +35,14 @@ function ChatHistory() {
   }, [getAccessTokenSilently])
 
   const handleSessionClick = (session) => {
-    setSelectedSession(session)
+    // Ensure all required properties are present before setting the selected session
+    if (session && session.session_id && session.messages) {
+      setSelectedSession(session)
+    } else {
+      console.error('Invalid session data:', session)
+      // Optionally, show an error message to the user
+      setError('Unable to load chat session. Please try again.')
+    }
   }
 
   const handleRawCacheClick = (sessionId, e) => {
@@ -44,12 +51,9 @@ function ChatHistory() {
     setIsRawCacheModalOpen(true)
   }
 
-  if (loading) {
-    return <div>Loading chat history...</div>
-  }
-
-  if (error) {
-    return <div className="text-red-500">{error}</div>
+  const truncateMessage = (message, maxLength = 50) => {
+    if (message.length <= maxLength) return message
+    return message.substring(0, maxLength - 3) + '...'
   }
 
   const formatDate = (dateString) => {
@@ -57,107 +61,71 @@ function ChatHistory() {
     const date = new Date(dateString)
     return isNaN(date.getTime())
       ? 'Invalid Date'
-      : date.toISOString().split('T')[0]
+      : date.toLocaleDateString() + ' ' + date.toLocaleTimeString()
   }
 
   const formatDuration = (seconds) => {
+    if (typeof seconds !== 'number') return 'N/A'
     const minutes = Math.floor(seconds / 60)
     const remainingSeconds = Math.round(seconds % 60)
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`
   }
 
+  if (loading) {
+    return <div className="p-4">Loading chat history...</div>
+  }
+
+  if (error) {
+    return <div className="p-4 text-red-500">{error}</div>
+  }
+
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6">Chat History</h1>
-      <div className="flex">
-        <div className="w-1/3 pr-4">
-          {!hasChatSessions ? (
-            <p>You haven't started any chat sessions yet.</p>
-          ) : (
-            <ul className="space-y-4">
-              {chatSessions.map((session) => (
-                <li
-                  key={session.session_id}
-                  className={`border p-4 rounded-lg shadow-sm cursor-pointer ${
-                    selectedSession &&
-                    selectedSession.session_id === session.session_id
-                      ? 'bg-blue-100'
-                      : 'hover:bg-gray-100'
-                  }`}
-                  onClick={() => handleSessionClick(session)}
-                >
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <p className="font-semibold">
-                        Chat Session {session.session_id.slice(0, 8)}...
-                      </p>
-                      <p className="text-sm text-gray-500">
-                        Messages: {session.messages.length}
-                      </p>
-                      {/* New details */}
-                      <p className="text-sm text-gray-500">
-                        Duration (minutes):{' '}
-                        {formatDuration(session.chat_duration)}
-                      </p>
-                      <p className="text-sm text-gray-500">
-                        Tokens Used: {session.token_count_used.toLocaleString()}
-                      </p>
-                      <p className="text-sm text-gray-500">
-                        Price Tier: {session.price_tier}
-                      </p>
-                      <p className="text-sm text-gray-500">
-                        Token millions per Hour:{' '}
-                        {session.token_hours_used.toFixed(4)}
-                      </p>
-                      <p className="text-sm text-gray-500">
-                        Date recorded (End of chat):{' '}
-                        {formatDate(session.termination_time)}
-                      </p>
-                    </div>
-                    <button
-                      onClick={(e) =>
-                        handleRawCacheClick(session.session_id, e)
-                      }
-                      className="text-blue-500 hover:underline"
-                    >
-                      Raw Cache
-                    </button>
+    <div className="w-full px-4 py-8">
+      <h1 className="text-3xl font-bold mb-6 retro-font">Chat History</h1>
+      <div className="bg-mac-platinum rounded-lg shadow-inner p-4">
+        {!hasChatSessions ? (
+          <p className="text-center py-4 retro-text">
+            You haven&apos;t started any chat sessions yet.
+          </p>
+        ) : (
+          <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {chatSessions.map((session) => (
+              <li
+                key={session.session_id}
+                className="bg-white border-2 border-gray-300 p-4 rounded-lg shadow-sm cursor-pointer hover:bg-mac-beige transition-colors duration-200"
+                onClick={() => handleSessionClick(session)}
+              >
+                <div className="flex flex-col h-full">
+                  <h3 className="font-semibold text-xs retro-font mb-2">
+                    {truncateMessage(
+                      session.messages[0]?.content || 'No messages'
+                    )}
+                  </h3>
+                  <div className="text-sm text-gray-500 grid grid-cols-2 gap-x-4 gap-y-1 mb-2 retro-text-light">
+                    <p>ID: {session.session_id.slice(0, 8)}...</p>
+                    <p>Messages: {session.messages.length}</p>
+                    <p>Duration: {formatDuration(session.chat_duration)}</p>
+                    <p>Date: {formatDate(session.termination_time)}</p>
                   </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-        <div className="w-2/3 pl-4">
-          {hasChatSessions ? (
-            selectedSession ? (
-              <div>
-                <h2 className="text-2xl font-bold mb-4">
-                  Chat Session {selectedSession.session_id.slice(0, 8)}...
-                </h2>
-                {/* New details for selected session */}
-                <div className="mb-4 text-sm text-gray-600">
-                  Duration: {formatDuration(selectedSession.chat_duration)} |
-                  Tokens Used:{' '}
-                  {selectedSession.token_count_used.toLocaleString()} | Price
-                  Tier: {selectedSession.price_tier} | Token Hours:{' '}
-                  {selectedSession.token_hours_used.toFixed(4)}
+                  <button
+                    onClick={(e) => handleRawCacheClick(session.session_id, e)}
+                    className="bg-mac-gray text-white px-3 py-1 rounded hover:bg-mac-cool-gray transition-colors duration-200 mt-auto self-start retro-text"
+                  >
+                    Raw Cache
+                  </button>
                 </div>
-                <div className="bg-white rounded-lg shadow">
-                  <ChatDisplay
-                    messages={selectedSession.messages}
-                    onRawCacheClick={(e) =>
-                      handleRawCacheClick(selectedSession.session_id, e)
-                    }
-                  />
-                </div>
-              </div>
-            ) : (
-              <p>Select a chat session to view the conversation.</p>
-            )
-          ) : null}
-        </div>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
+
+      {selectedSession && (
+        <ChatModal
+          session={selectedSession}
+          onClose={() => setSelectedSession(null)}
+        />
+      )}
 
       <RawCacheModal
         sessionId={currentRawCacheSessionId}

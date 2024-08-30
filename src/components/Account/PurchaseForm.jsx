@@ -32,39 +32,46 @@ function PurchaseForm() {
   }
 
   return (
-    <div>
-      <h2 className="text-2xl font-bold mb-4">Purchase Token Hours</h2>
-      <p className="mb-2">
+    <div className="bg-white p-6 rounded-lg shadow-md border-2 border-gray-300">
+      <h2 className="text-xl font-bold mb-4 retro-font">
+        Purchase Token Hours
+      </h2>
+      <p className="mb-4 text-sm text-gray-700 retro-text">
         Prices are based on underlying pricing by the LLM provider plus a markup
-        for our context building service.{' '}
+        for our context building service.
       </p>
-      <div className="flex space-x-4 mb-4">
-        <div className="border p-4 rounded-lg w-1/2">
-          <h3 className="text-xl font-semibold mb-2">Base Plan</h3>
-          <p className="mb-2">$1.2 per 1 million token hour</p>
-          <p className="mb-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <div className="border-2 border-gray-300 p-4 rounded-lg">
+          <h3 className="text-lg font-semibold mb-2 retro-font">Base Plan</h3>
+          <p className="mb-2 retro-text text-gray-700">
+            $1.2 per 1M token hour
+          </p>
+          <p className="mb-4 text-sm text-gray-700 retro-text-light">
             Currently Google Gemini 1.5 Flash model. Good for single item
             retrieval and summarization.
           </p>
           <button
-            className={`px-4 py-2 rounded ${
-              plan === 'base' ? 'bg-blue-500 text-white' : 'bg-gray-200'
+            className={`px-4 py-2 rounded retro-text ${
+              plan === 'base'
+                ? 'bg-black text-white'
+                : 'bg-gray-200 text-gray-700'
             }`}
             onClick={() => setPlan('base')}
           >
             Select Base Plan
           </button>
         </div>
-        <div className="border p-4 rounded-lg w-1/2">
-          <h3 className="text-xl font-semibold mb-2">Pro Plan</h3>
-          <p className="mb-2">$5 per 1 million token hour</p>
-          <p className="mb-4">
-            Currently Google Gemini 1.5 Pro model. Good for single item
-            retrieval and summarization
+        <div className="border-2 border-gray-300 p-4 rounded-lg">
+          <h3 className="text-lg font-semibold mb-2 retro-font">Pro Plan</h3>
+          <p className="mb-2 retro-text text-gray-700">$5 per 1M token hour</p>
+          <p className="mb-4 text-sm text-gray-700 retro-text-light">
+            Currently Google Gemini 1.5 Pro model. Good for complex questions.
           </p>
           <button
-            className={`px-4 py-2 rounded ${
-              plan === 'pro' ? 'bg-blue-500 text-white' : 'bg-gray-200'
+            className={`px-4 py-2 rounded retro-text ${
+              plan === 'pro'
+                ? 'bg-black text-white'
+                : 'bg-gray-200 text-gray-700'
             }`}
             onClick={() => setPlan('pro')}
           >
@@ -73,8 +80,11 @@ function PurchaseForm() {
         </div>
       </div>
 
-      <div className="mb-4">
-        <label htmlFor="tokenHours" className="block mb-2">
+      <div className="mb-6">
+        <label
+          htmlFor="tokenHours"
+          className="block mb-2 text-gray-700 retro-text"
+        >
           Token Hours (1-20):
         </label>
         <input
@@ -86,12 +96,12 @@ function PurchaseForm() {
           onChange={(e) =>
             setTokenHours(Math.min(20, Math.max(1, parseInt(e.target.value))))
           }
-          className="border rounded px-2 py-1"
+          className="border-2 border-gray-300 rounded px-2 py-1 w-16 text-gray-700 retro-text"
         />
       </div>
       <button
         onClick={handlePurchase}
-        className="bg-green-500 text-white px-4 py-2 rounded mb-4"
+        className="bg-black text-white px-4 py-2 rounded hover:bg-gray-800 transition-colors retro-text"
       >
         Purchase {tokenHours} {plan === 'base' ? 'Base' : 'Pro'} Token Hours
       </button>

@@ -251,23 +251,25 @@ function Chat() {
         {sessionStatus === 'expired' ? (
           <div className="flex-grow flex items-center justify-center">
             <div className="text-center p-8 bg-white rounded-lg shadow-md">
-              <h2 className="text-2xl font-bold mb-4">Session Expired</h2>
-              <p className="mb-4">
+              <h2 className="text-2xl font-bold mb-4 retro-font">
+                Session Expired
+              </h2>
+              <p className="mb-4 retro-text-light">
                 If you wish to restart a session, go to the Context Builder.
               </p>
               <div className="space-y-2">
                 <Link
                   to="/contextBuilder"
-                  className="block bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+                  className="block bg-mac-purple text-white px-4 py-2 rounded-lg hover:bg-mac-purple-dark retro-text"
                 >
                   Context Builder
                 </Link>
-                <p className="mb-4">
+                <p className="mb-4 retro-text-light">
                   You can find the history of this chat in Chat History{' '}
                 </p>
                 <Link
                   to="/chatHistory"
-                  className="block bg-gray-300 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-400"
+                  className="block bg-mac-gray text-gray-800 px-4 py-2 rounded-lg hover:bg-mac-cool-gray retro-text"
                 >
                   Chat History
                 </Link>
@@ -277,7 +279,7 @@ function Chat() {
         ) : (
           <>
             <div className="bg-white shadow-md p-4 flex justify-between items-center">
-              <h1 className="text-xl font-bold">Chat Session</h1>
+              <h1 className="text-xl retro-font">Chat Session</h1>
               <SessionManager
                 sessionId={sessionId}
                 onSessionExpired={handleSessionExpired}
@@ -293,7 +295,7 @@ function Chat() {
               />
               <button
                 onClick={() => setIsTerminateModalOpen(true)}
-                className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
+                className="bg-mac-red text-white px-4 py-2 rounded-lg hover:bg-mac-red-dark retro-text"
               >
                 Terminate Chat
               </button>
@@ -306,7 +308,9 @@ function Chat() {
             />
             {isAiComposing && (
               <div className="p-4 bg-gray-100">
-                <p className="text-gray-600">AI is composing reply...</p>
+                <p className="text-gray-600 retro-text-light">
+                  AI is composing reply...
+                </p>
               </div>
             )}
 
@@ -317,15 +321,15 @@ function Chat() {
                   value={inputMessage}
                   onChange={(e) => setInputMessage(e.target.value)}
                   placeholder="Type your message..."
-                  className="flex-1 border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="flex-1 border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-mac-purple retro-text-light"
                   disabled={isLoading}
                 />
                 <button
                   type="submit"
-                  className={`bg-blue-500 text-white px-4 py-2 rounded-lg ${
+                  className={`bg-mac-purple text-white px-4 py-2 rounded-lg retro-text ${
                     isLoading
                       ? 'opacity-50 cursor-not-allowed'
-                      : 'hover:bg-blue-600'
+                      : 'hover:bg-mac-purple-dark'
                   }`}
                   disabled={isLoading}
                 >
@@ -337,23 +341,23 @@ function Chat() {
             {isTerminateModalOpen && (
               <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
                 <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-                  <h3 className="text-lg font-medium text-gray-900 mb-4">
+                  <h3 className="text-lg font-medium text-gray-900 mb-4 retro-font">
                     Confirm Termination
                   </h3>
-                  <p className="mb-4">
+                  <p className="mb-4 retro-text-light">
                     Are you sure you want to terminate this chat session? The
                     cached data will be deleted and cannot be recovered.
                   </p>
                   <div className="flex justify-end space-x-2">
                     <button
                       onClick={() => setIsTerminateModalOpen(false)}
-                      className="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-400"
+                      className="bg-mac-gray text-gray-800 px-4 py-2 rounded-lg hover:bg-mac-cool-gray retro-text"
                     >
                       Cancel
                     </button>
                     <button
                       onClick={handleTerminateChat}
-                      className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
+                      className="bg-mac-red text-white px-4 py-2 rounded-lg hover:bg-mac-red-dark retro-text"
                     >
                       Terminate
                     </button>

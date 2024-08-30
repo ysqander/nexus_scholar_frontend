@@ -28,12 +28,14 @@ function usePaperLoader() {
       )
       if (response.data) {
         setPaper(response.data)
+        console.log('response.data:', response.data)
         const initialSelectedRefs = {}
         response.data.references.forEach((ref) => {
           if (ref.is_available_on_arxiv) {
             initialSelectedRefs[ref.arxiv_id] = true
           }
         })
+        console.log('initialSelectedRefs:', initialSelectedRefs)
         setSelectedReferences(initialSelectedRefs)
       } else {
         setError('Received empty response from server')

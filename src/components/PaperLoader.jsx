@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import CacheBuilderModal from './CacheBuilderModal';
-import PaperLoadingForm from './PaperLoadingForm';
-import MainPaperDisplay from './MainPaperDisplay';
-import ContextPapersSection from './ContextPapersSection';
-import usePaperLoader from '../hooks/usePaperLoader';
+import React, { useState } from 'react'
+import CacheBuilderModal from './CacheBuilderModal'
+import PaperLoadingForm from './PaperLoadingForm'
+import MainPaperDisplay from './MainPaperDisplay'
+import ContextPapersSection from './ContextPapersSection'
+import usePaperLoader from '../hooks/usePaperLoader'
 
 function PaperLoader() {
   const {
@@ -24,16 +24,15 @@ function PaperLoader() {
     handlePdfUpload,
     handleRemovePdf,
     setIsModalOpen,
-  } = usePaperLoader();
+  } = usePaperLoader()
 
-  const [priceTier, setPriceTier] = useState('base');
+  const [priceTier, setPriceTier] = useState('base')
 
   return (
-    <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
-      
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <div className="w-full">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
         {/* Left Column */}
-        <div>
+        <div className="bg-mac-muted-green p-4 rounded-lg shadow-md border-2 border-gray-300">
           <PaperLoadingForm
             arxivId={arxivId}
             setArxivId={setArxivId}
@@ -47,18 +46,20 @@ function PaperLoader() {
         </div>
 
         {/* Right Column */}
-        <ContextPapersSection
-          paper={paper}
-          selectedReferences={selectedReferences}
-          additionalPapers={additionalPapers}
-          uploadedPdfs={uploadedPdfs}
-          handleReferenceToggle={handleReferenceToggle}
-          handleRemoveAdditionalPaper={handleRemoveAdditionalPaper}
-          handleRemovePdf={handleRemovePdf}
-          setIsModalOpen={setIsModalOpen}
-          priceTier={priceTier}
-          setPriceTier={setPriceTier}
-        />
+        <div className="bg-mac-muted-green p-4 rounded-lg shadow-md border-gray-300">
+          <ContextPapersSection
+            paper={paper}
+            selectedReferences={selectedReferences}
+            additionalPapers={additionalPapers}
+            uploadedPdfs={uploadedPdfs}
+            handleReferenceToggle={handleReferenceToggle}
+            handleRemoveAdditionalPaper={handleRemoveAdditionalPaper}
+            handleRemovePdf={handleRemovePdf}
+            setIsModalOpen={setIsModalOpen}
+            priceTier={priceTier}
+            setPriceTier={setPriceTier}
+          />
+        </div>
       </div>
 
       <CacheBuilderModal
@@ -71,9 +72,9 @@ function PaperLoader() {
         priceTier={priceTier}
       />
 
-      {error && <p className="mt-4 text-red-500">{error}</p>}
+      {error && <p className="mt-4 text-red-500 retro-font">{error}</p>}
     </div>
-  );
+  )
 }
 
-export default PaperLoader;
+export default PaperLoader

@@ -1,23 +1,23 @@
-import React, { useRef, useEffect } from 'react';
-import ReactMarkdown from 'react-markdown';
+import React, { useRef, useEffect } from 'react'
+import ReactMarkdown from 'react-markdown'
 
 function ChatDisplay({ messages, isActiveChat = false, onRawCacheClick }) {
-  const messagesEndRef = useRef(null);
+  const messagesEndRef = useRef(null)
 
   useEffect(() => {
     if (isActiveChat) {
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
     }
-  }, [messages, isActiveChat]);
+  }, [messages, isActiveChat])
 
   return (
     <div className="flex-1 overflow-y-auto p-4 space-y-4">
-       {isActiveChat && (
+      {isActiveChat && (
         <div className="text-center mt-4">
           <a
             href="#"
             onClick={onRawCacheClick}
-            className="text-blue-500 hover:underline"
+            className="text-mac-purple underline hover:text-mac-purple-dark cursor-pointer retro-text-light"
           >
             View Raw Cache
           </a>
@@ -33,9 +33,9 @@ function ChatDisplay({ messages, isActiveChat = false, onRawCacheClick }) {
           <div
             className={`max-w-xs md:max-w-md lg:max-w-lg xl:max-w-xl px-4 py-2 rounded-lg ${
               message.type === 'user'
-                ? 'bg-blue-500 text-white'
-                : 'bg-white text-gray-800'
-            }`}
+                ? 'bg-mac-purple text-white retro-text-light'
+                : 'bg-mac-muted-green text-gray-800 retro-text-light'
+            } retro-text-light`}
           >
             {message.type === 'ai' ? (
               <ReactMarkdown>{message.content}</ReactMarkdown>
@@ -47,9 +47,8 @@ function ChatDisplay({ messages, isActiveChat = false, onRawCacheClick }) {
         </div>
       ))}
       <div ref={messagesEndRef} />
-     
     </div>
-  );
+  )
 }
 
-export default ChatDisplay;
+export default ChatDisplay

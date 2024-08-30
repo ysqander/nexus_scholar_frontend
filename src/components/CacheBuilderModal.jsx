@@ -76,35 +76,43 @@ function CacheBuilderModal({
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-      <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-        <div className="mt-3 text-center">
-          <h3 className="text-lg leading-6 font-medium text-gray-900">
-            Building Cache
-          </h3>
+    <div className="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center">
+      <div className="bg-gray-100 p-6 rounded-lg border-4 border-gray-700 shadow-lg w-96">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-xl font-bold retro-font">Building Cache</h3>
           <button
             onClick={onClose}
-            className="absolute top-0 right-0 mt-4 mr-4 text-gray-400 hover:text-gray-500"
+            className="text-gray-600 hover:text-gray-800"
           >
             <XMarkIcon className="h-6 w-6" />
           </button>
-          <div className="mt-2 px-7 py-3">
-            {isBuildingCache ? (
-              <div className="flex flex-col items-center">
-                <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500"></div>
-                <p className="mt-4 text-sm text-gray-500">
-                  Building your paper context...
-                </p>
-                <p className="mt-2 text-xs text-gray-400">
-                  This may take a few moments
-                </p>
-              </div>
-            ) : error ? (
-              <p className="text-red-500">{error}</p>
-            ) : (
-              <p className="text-sm text-gray-500">Ready to build your cache</p>
-            )}
-          </div>
+        </div>
+        <div className="bg-white p-4 rounded border border-gray-300">
+          {isBuildingCache ? (
+            <div className="flex flex-col items-center">
+              <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500"></div>
+              <p className="mt-4 text-xs text-gray-500 retro-text">
+                Building your paper context...
+              </p>
+              <p className="mt-2 text-xs text-gray-400 retro-text-light">
+                This may take a few moments
+              </p>
+            </div>
+          ) : error ? (
+            <p className="text-red-500 retro-font">{error.toString()}</p>
+          ) : (
+            <p className="text-sm text-gray-500 retro-font">
+              Ready to build your cache
+            </p>
+          )}
+        </div>
+        <div className="mt-6 flex justify-end">
+          <button
+            onClick={onClose}
+            className="bg-gray-200 text-black font-bold py-2 px-4 rounded border-2 border-gray-700 hover:bg-gray-300 retro-font mr-2"
+          >
+            Cancel
+          </button>
         </div>
       </div>
     </div>
