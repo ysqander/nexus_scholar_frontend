@@ -21,30 +21,30 @@ export default function RetroMacLayout({
     <div className="min-h-screen bg-gray-200 font-sans">
       <nav className="bg-stripes h-16 flex items-center justify-between px-4 text-black">
         <div className="text-xl font-bold retro-font">Nexus Scholar</div>
-        <div className="hidden md:flex items-center space-x-4">
+        <div className="hidden md:flex items-center space-x-2 text-xs md:text-sm lg:text-base">
           {isAuthenticated && (
             <>
               <Link
                 to="/start"
-                className="hover:bg-black hover:text-white px-2 py-1"
+                className="hover:bg-black hover:text-white px-2 py-1 rounded-full text-sm md:text-md lg:text-lg"
               >
                 Start
               </Link>
               <Link
                 to="/contextBuilder"
-                className="hover:bg-black hover:text-white px-2 py-1"
+                className="hover:bg-black hover:text-white px-2 py-1 rounded-full text-xs md:text-sm lg:text-base"
               >
                 Context Builder
               </Link>
               <Link
                 to="/chatHistory"
-                className="hover:bg-black hover:text-white px-2 py-1"
+                className="hover:bg-black hover:text-white px-2 py-1 rounded-full text-xs md:text-sm lg:text-base"
               >
                 Chat History
               </Link>
               <Link
                 to="/account"
-                className="hover:bg-black hover:text-white px-2 py-1"
+                className="hover:bg-black hover:text-white px-2 py-1 rounded-full text-xs md:text-sm lg:text-base"
               >
                 Account
               </Link>
