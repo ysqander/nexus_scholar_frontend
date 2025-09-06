@@ -33,14 +33,12 @@ function Chat() {
     const connectWebSocket = async () => {
       try {
         const token = await getAccessTokenSilently()
-        console.log('Token obtained:', token) // Debug: Log token
 
         const wsUrl = `${
           import.meta.env.VITE_WS_BASE_URL
         }/ws?token=${encodeURIComponent(token)}&sessionId=${encodeURIComponent(
           sessionId
         )}`
-        console.log('Attempting to connect to WebSocket:', wsUrl) // Debug: Log WebSocket URL
 
         const ws = new WebSocket(wsUrl)
 

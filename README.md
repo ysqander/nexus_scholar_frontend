@@ -1,409 +1,134 @@
-# NexusScholar Frontend
+## Nexus Scholar — Frontend
 
-This is the frontend for the NexusScholar project, a tool for researchers to interact with ArXiv papers and their references.
+Nexus Scholar is a research assistant UI that lets you load a set of papers (arXiv lookups, references, and your own PDFs) into a single chat session and ask questions across all of them.
 
-## Setup
+This repository contains the React/Vite frontend. The backend (API + WebSocket) is a separate repo https://github.com/ysqander/nexus_scholar_go_backend.
 
-1. Ensure you have Node.js and pnpm installed.
-2. Run the setup script: `bash setup_nexus_scholar_frontend.sh`
-3. Navigate to the project directory: `cd nexus_scholar_frontend`
-4. Start the development server: `pnpm dev`
+![Nexus Scholar Screenshot](public/nexus_scholar_frontend.png)
+
+### Highlights
+
+- **Context builder**: fetch an arXiv paper, inspect references, select which to include, add extra papers, and upload your own PDFs.
+- **Streaming chat**: WebSocket-based, type while the AI composes responses.
+- **Session controls**: warnings, extensions, and termination with cached-data cleanup.
+- **Auth**: Auth0 login/logout and protected API access.
+- **Modern UI**: Tailwind CSS with a retro Mac-inspired layout.
+
+### Tech Stack
+
+- **React 18** with **Vite** and **React Router**
+- **Auth0** for authentication
+- **Axios** for API calls (with retry)
+- **WebSockets** for streaming responses
+- **Tailwind CSS** for styling
+- **Zustand** for light state management
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js 18+ and pnpm 8+
+- A running backend providing REST and WebSocket endpoints
+- An Auth0 application (domain, client ID, audience)
+
+### 1) Install dependencies
+
+```bash
+pnpm install
+```
+
+### 2) Configure environment
+
+Create a `.env.local` in the project root and set the following variables:
+
+```bash
+# API base URL (backend HTTP endpoint)
+VITE_API_BASE_URL=http://localhost:8000
+
+# WebSocket base URL (backend WS endpoint)
+VITE_WS_BASE_URL=ws://localhost:8000
+
+# Auth0 configuration
+VITE_AUTH0_DOMAIN=your-tenant.eu.auth0.com
+VITE_AUTH0_CLIENT_ID=your-client-id
+VITE_AUTH0_AUDIENCE=your-api-identifier
+```
+
+Notes:
+
+- `VITE_API_BASE_URL` is used by Axios for REST calls.
+- `VITE_WS_BASE_URL` is used to establish the chat WebSocket: `${VITE_WS_BASE_URL}/ws`.
+- Auth0 variables are read in `src/main.jsx`.
+
+### 3) Run the dev server
+
+```bash
+pnpm dev
+```
+
+Open `http://localhost:5173` in your browser.
+
+### Build and Preview
+
+```bash
+# Production build
+pnpm build
+
+# Preview the build locally
+pnpm preview
+```
 
 ## Project Structure
 
 ```
-.
-  |-node_modules
-  |  |-.pnpm
-  |  |  |-@babel+core@7.24.7
-  |  |  |-is-extglob@2.1.1
-  |  |  |-is-finalizationregistry@1.0.2
-  |  |  |-object.assign@4.1.5
-  |  |  |-debug@4.3.5
-  |  |  |-@humanwhocodes+object-schema@2.0.3
-  |  |  |-supports-color@7.2.0
-  |  |  |-fastq@1.17.1
-  |  |  |-@remix-run+router@1.17.0
-  |  |  |-rimraf@3.0.2
-  |  |  |-resolve@1.22.8
-  |  |  |-zustand@4.5.4_@types+react@18.3.3_react@18.3.1
-  |  |  |-rollup@4.18.0
-  |  |  |-braces@3.0.3
-  |  |  |-@babel+helper-function-name@7.24.7
-  |  |  |-unbox-primitive@1.0.2
-  |  |  |-path-is-absolute@1.0.1
-  |  |  |-is-number-object@1.0.7
-  |  |  |-flatted@3.3.1
-  |  |  |-glob-parent@6.0.2
-  |  |  |-lilconfig@2.1.0
-  |  |  |-array.prototype.findlast@1.2.5
-  |  |  |-@eslint-community+regexpp@4.10.1
-  |  |  |-object.hasown@1.1.4
-  |  |  |-js-yaml@4.1.0
-  |  |  |-is-glob@4.0.3
-  |  |  |-eslint@8.57.0
-  |  |  |-didyoumean@1.2.2
-  |  |  |-jsesc@2.5.2
-  |  |  |-dlv@1.1.3
-  |  |  |-globals@11.12.0
-  |  |  |-@jridgewell+gen-mapping@0.3.5
-  |  |  |-doctrine@2.1.0
-  |  |  |-ignore@5.3.1
-  |  |  |-@babel+helper-string-parser@7.24.7
-  |  |  |-@nodelib+fs.walk@1.2.8
-  |  |  |-gensync@1.0.0-beta.2
-  |  |  |-is-core-module@2.14.0
-  |  |  |-semver@6.3.1
-  |  |  |-@rollup+rollup-darwin-arm64@4.18.0
-  |  |  |-safe-array-concat@1.1.2
-  |  |  |-define-data-property@1.1.4
-  |  |  |-has-flag@3.0.0
-  |  |  |-picomatch@2.3.1
-  |  |  |-has-symbols@1.0.3
-  |  |  |-json-stable-stringify-without-jsonify@1.0.1
-  |  |  |-object.entries@1.1.8
-  |  |  |-@nodelib+fs.scandir@2.1.5
-  |  |  |-reusify@1.0.4
-  |  |  |-keyv@4.5.4
-  |  |  |-chokidar@3.6.0
-  |  |  |-@babel+helper-validator-identifier@7.24.7
-  |  |  |-vite@5.3.1
-  |  |  |-@babel+helper-simple-access@7.24.7
-  |  |  |-typed-array-byte-length@1.0.1
-  |  |  |-is-async-function@2.0.0
-  |  |  |-array.prototype.tosorted@1.1.4
-  |  |  |-postcss-js@4.0.1_postcss@8.4.38
-  |  |  |-array.prototype.flatmap@1.3.2
-  |  |  |-@babel+helper-compilation-targets@7.24.7
-  |  |  |-@jridgewell+trace-mapping@0.3.25
-  |  |  |-@babel+plugin-transform-react-jsx-source@7.24.7_@babel+core@7.24.7
-  |  |  |-text-table@0.2.0
-  |  |  |-strip-ansi@7.1.0
-  |  |  |-@jridgewell+set-array@1.2.1
-  |  |  |-lodash.merge@4.6.2
-  |  |  |-object.fromentries@2.0.8
-  |  |  |-wrappy@1.0.2
-  |  |  |-@jridgewell+resolve-uri@3.1.2
-  |  |  |-react-router@6.24.0_react@18.3.1
-  |  |  |-loose-envify@1.4.0
-  |  |  |-object.values@1.2.0
-  |  |  |-@jridgewell+sourcemap-codec@1.4.15
-  |  |  |-is-array-buffer@3.0.4
-  |  |  |-es-abstract@1.23.3
-  |  |  |-lru-cache@10.2.2
-  |  |  |-yaml@2.4.5
-  |  |  |-get-symbol-description@1.0.2
-  |  |  |-has-flag@4.0.0
-  |  |  |-which-boxed-primitive@1.0.2
-  |  |  |-node-releases@2.0.14
-  |  |  |-typed-array-buffer@1.0.2
-  |  |  |-string.prototype.matchall@4.0.11
-  |  |  |-once@1.4.0
-  |  |  |-readdirp@3.6.0
-  |  |  |-read-cache@1.0.0
-  |  |  |-cssesc@3.0.0
-  |  |  |-gopd@1.0.1
-  |  |  |-balanced-match@1.0.2
-  |  |  |-ansi-styles@3.2.1
-  |  |  |-convert-source-map@2.0.0
-  |  |  |-available-typed-arrays@1.0.7
-  |  |  |-sucrase@3.35.0
-  |  |  |-yallist@3.1.1
-  |  |  |-path-parse@1.0.7
-  |  |  |-@babel+types@7.24.7
-  |  |  |-normalize-range@0.1.2
-  |  |  |-flat-cache@3.2.0
-  |  |  |-is-weakref@1.0.2
-  |  |  |-fast-levenshtein@2.0.6
-  |  |  |-package-json-from-dist@1.0.0
-  |  |  |-fsevents@2.3.3
-  |  |  |-supports-color@5.5.0
-  |  |  |-array-includes@3.1.8
-  |  |  |-browserslist@4.23.1
-  |  |  |-@babel+code-frame@7.24.7
-  |  |  |-json-schema-traverse@0.4.1
-  |  |  |-has-bigints@1.0.2
-  |  |  |-@babel+helper-plugin-utils@7.24.7
-  |  |  |-array.prototype.toreversed@1.1.2
-  |  |  |-anymatch@3.1.3
-  |  |  |-@alloc+quick-lru@5.2.0
-  |  |  |-path-key@3.1.1
-  |  |  |-chalk@2.4.2
-  |  |  |-safe-regex-test@1.0.3
-  |  |  |-data-view-byte-length@1.0.1
-  |  |  |-is-string@1.0.7
-  |  |  |-define-properties@1.2.1
-  |  |  |-possible-typed-array-names@1.0.0
-  |  |  |-color-convert@2.0.1
-  |  |  |-@humanwhocodes+config-array@0.11.14
-  |  |  |-concat-map@0.0.1
-  |  |  |-es-shim-unscopables@1.0.2
-  |  |  |-uri-js@4.4.1
-  |  |  |-@eslint+eslintrc@2.1.4
-  |  |  |-brace-expansion@1.1.11
-  |  |  |-@babel+generator@7.24.7
-  |  |  |-shebang-command@2.0.0
-  |  |  |-path-exists@4.0.0
-  |  |  |-pify@2.3.0
-  |  |  |-@isaacs+cliui@8.0.2
-  |  |  |-arraybuffer.prototype.slice@1.0.3
-  |  |  |-esbuild@0.21.5
-  |  |  |-node_modules
-  |  |  |-is-set@2.0.3
-  |  |  |-has-tostringtag@1.0.2
-  |  |  |-type-fest@0.20.2
-  |  |  |-eslint-visitor-keys@3.4.3
-  |  |  |-object-keys@1.1.1
-  |  |  |-postcss-load-config@4.0.2_postcss@8.4.38
-  |  |  |-type-check@0.4.0
-  |  |  |-fs.realpath@1.0.0
-  |  |  |-@babel+compat-data@7.24.7
-  |  |  |-json5@2.2.3
-  |  |  |-react-refresh@0.14.2
-  |  |  |-emoji-regex@8.0.0
-  |  |  |-@pkgjs+parseargs@0.11.0
-  |  |  |-@humanwhocodes+module-importer@1.0.1
-  |  |  |-esutils@2.0.3
-  |  |  |-isexe@2.0.0
-  |  |  |-object-inspect@1.13.2
-  |  |  |-acorn@8.12.0
-  |  |  |-has-property-descriptors@1.0.2
-  |  |  |-@types+babel__generator@7.6.8
-  |  |  |-electron-to-chromium@1.4.812
-  |  |  |-inherits@2.0.4
-  |  |  |-@babel+template@7.24.7
-  |  |  |-@types+prop-types@15.7.12
-  |  |  |-@babel+helper-validator-option@7.24.7
-  |  |  |-postcss-nested@6.0.1_postcss@8.4.38
-  |  |  |-util-deprecate@1.0.2
-  |  |  |-combined-stream@1.0.8
-  |  |  |-picocolors@1.0.1
-  |  |  |-minipass@7.1.2
-  |  |  |-escape-string-regexp@4.0.0
-  |  |  |-ansi-styles@6.2.1
-  |  |  |-@nodelib+fs.stat@2.0.5
-  |  |  |-to-regex-range@5.0.1
-  |  |  |-array.prototype.flat@1.3.2
-  |  |  |-data-view-buffer@1.0.1
-  |  |  |-is-boolean-object@1.1.2
-  |  |  |-es-define-property@1.0.0
-  |  |  |-data-view-byte-offset@1.0.0
-  |  |  |-reflect.getprototypeof@1.0.6
-  |  |  |-espree@9.6.1
-  |  |  |-eslint-plugin-react@7.34.3_eslint@8.57.0
-  |  |  |-is-data-view@1.0.1
-  |  |  |-@babel+traverse@7.24.7
-  |  |  |-@types+babel__traverse@7.20.6
-  |  |  |-fraction.js@4.3.7
-  |  |  |-mz@2.7.0
-  |  |  |-internal-slot@1.0.7
-  |  |  |-micromatch@4.0.7
-  |  |  |-source-map-js@1.2.0
-  |  |  |-emoji-regex@9.2.2
-  |  |  |-side-channel@1.0.6
-  |  |  |-is-map@2.0.3
-  |  |  |-mime-types@2.1.35
-  |  |  |-@babel+helper-environment-visitor@7.24.7
-  |  |  |-foreground-child@3.2.1
-  |  |  |-hasown@2.0.2
-  |  |  |-react-router-dom@6.24.0_react-dom@18.3.1_react@18.3.1__react@18.3.1
-  |  |  |-is-shared-array-buffer@1.0.3
-  |  |  |-nanoid@3.3.7
-  |  |  |-@vitejs+plugin-react@4.3.1_vite@5.3.1
-  |  |  |-word-wrap@1.2.5
-  |  |  |-globalthis@1.0.4
-  |  |  |-es-to-primitive@1.2.1
-  |  |  |-ansi-regex@6.0.1
-  |  |  |-object-hash@3.0.0
-  |  |  |-@babel+parser@7.24.7
-  |  |  |-is-binary-path@2.1.0
-  |  |  |-locate-path@6.0.0
-  |  |  |-resolve-from@4.0.0
-  |  |  |-scheduler@0.23.2
-  |  |  |-@ampproject+remapping@2.3.0
-  |  |  |-color-convert@1.9.3
-  |  |  |-is-symbol@1.0.4
-  |  |  |-@eslint+js@8.57.0
-  |  |  |-escalade@3.1.2
-  |  |  |-commander@4.1.1
-  |  |  |-postcss-value-parser@4.2.0
-  |  |  |-fast-json-stable-stringify@2.1.0
-  |  |  |-arg@5.0.2
-  |  |  |-typed-array-byte-offset@1.0.2
-  |  |  |-lilconfig@3.1.2
-  |  |  |-typed-array-length@1.0.6
-  |  |  |-regexp.prototype.flags@1.5.2
-  |  |  |-caniuse-lite@1.0.30001638
-  |  |  |-ansi-regex@5.0.1
-  |  |  |-react-dom@18.3.1_react@18.3.1
-  |  |  |-fill-range@7.1.1
-  |  |  |-form-data@4.0.0
-  |  |  |-@babel+helper-hoist-variables@7.24.7
-  |  |  |-fast-glob@3.3.2
-  |  |  |-yocto-queue@0.1.0
-  |  |  |-is-bigint@1.0.4
-  |  |  |-@types+react@18.3.3
-  |  |  |-ajv@6.12.6
-  |  |  |-which-collection@1.0.2
-  |  |  |-string-width@5.1.2
-  |  |  |-use-sync-external-store@1.2.0_react@18.3.1
-  |  |  |-@babel+plugin-transform-react-jsx-self@7.24.7_@babel+core@7.24.7
-  |  |  |-which-builtin-type@1.1.3
-  |  |  |-estraverse@5.3.0
-  |  |  |-is-regex@1.1.4
-  |  |  |-import-fresh@3.3.0
-  |  |  |-@ungap+structured-clone@1.2.0
-  |  |  |-callsites@3.1.0
-  |  |  |-postcss@8.4.38
-  |  |  |-merge2@1.4.1
-  |  |  |-chalk@4.1.2
-  |  |  |-color-name@1.1.4
-  |  |  |-parent-module@1.0.1
-  |  |  |-which-typed-array@1.1.15
-  |  |  |-globals@13.24.0
-  |  |  |-prelude-ls@1.2.1
-  |  |  |-color-name@1.1.3
-  |  |  |-eastasianwidth@0.2.0
-  |  |  |-jackspeak@3.4.0
-  |  |  |-glob@7.2.3
-  |  |  |-@types+babel__core@7.20.5
-  |  |  |-@babel+highlight@7.24.7
-  |  |  |-react-is@16.13.1
-  |  |  |-@esbuild+darwin-arm64@0.21.5
-  |  |  |-isarray@2.0.5
-  |  |  |-get-intrinsic@1.2.4
-  |  |  |-pirates@4.0.6
-  |  |  |-natural-compare@1.4.0
-  |  |  |-lru-cache@5.1.1
-  |  |  |-@babel+helper-split-export-declaration@7.24.7
-  |  |  |-autoprefixer@10.4.19_postcss@8.4.38
-  |  |  |-@types+estree@1.0.5
-  |  |  |-iterator.prototype@1.1.2
-  |  |  |-jiti@1.21.6
-  |  |  |-normalize-path@3.0.0
-  |  |  |-signal-exit@4.1.0
-  |  |  |-is-number@7.0.0
-  |  |  |-functions-have-names@1.2.3
-  |  |  |-glob@10.4.2
-  |  |  |-file-entry-cache@6.0.1
-  |  |  |-@eslint-community+eslint-utils@4.4.0_eslint@8.57.0
-  |  |  |-ansi-styles@4.3.0
-  |  |  |-resolve@2.0.0-next.5
-  |  |  |-set-function-length@1.2.2
-  |  |  |-axios@1.7.2
-  |  |  |-is-fullwidth-code-point@3.0.0
-  |  |  |-to-fast-properties@2.0.0
-  |  |  |-postcss-import@15.1.0_postcss@8.4.38
-  |  |  |-acorn-jsx@5.3.2_acorn@8.12.0
-  |  |  |-which@2.0.2
-  |  |  |-delayed-stream@1.0.0
-  |  |  |-string.prototype.trimstart@1.0.8
-  |  |  |-any-promise@1.3.0
-  |  |  |-is-date-object@1.0.5
-  |  |  |-es-errors@1.3.0
-  |  |  |-is-typed-array@1.1.13
-  |  |  |-asynckit@0.4.0
-  |  |  |-wrap-ansi@7.0.0
-  |  |  |-follow-redirects@1.15.6
-  |  |  |-string.prototype.trimend@1.0.8
-  |  |  |-shebang-regex@3.0.0
-  |  |  |-camelcase-css@2.0.1
-  |  |  |-supports-preserve-symlinks-flag@1.0.0
-  |  |  |-@types+babel__template@7.4.4
-  |  |  |-strip-json-comments@3.1.1
-  |  |  |-is-weakmap@2.0.2
-  |  |  |-string.prototype.trim@1.2.9
-  |  |  |-optionator@0.9.4
-  |  |  |-array-buffer-byte-length@1.0.1
-  |  |  |-eslint-plugin-react-hooks@4.6.2_eslint@8.57.0
-  |  |  |-for-each@0.3.3
-  |  |  |-mime-db@1.52.0
-  |  |  |-doctrine@3.0.0
-  |  |  |-fast-deep-equal@3.1.3
-  |  |  |-deep-is@0.1.4
-  |  |  |-function.prototype.name@1.1.6
-  |  |  |-esrecurse@4.3.0
-  |  |  |-function-bind@1.1.2
-  |  |  |-es-object-atoms@1.0.0
-  |  |  |-cross-spawn@7.0.3
-  |  |  |-glob-parent@5.1.2
-  |  |  |-postcss-selector-parser@6.1.0
-  |  |  |-inflight@1.0.6
-  |  |  |-@types+react-dom@18.3.0
-  |  |  |-escape-string-regexp@1.0.5
-  |  |  |-p-limit@3.1.0
-  |  |  |-is-weakset@2.0.3
-  |  |  |-p-locate@5.0.0
-  |  |  |-@babel+helpers@7.24.7
-  |  |  |-argparse@2.0.1
-  |  |  |-ms@2.1.2
-  |  |  |-graphemer@1.4.0
-  |  |  |-minimatch@3.1.2
-  |  |  |-ts-interface-checker@0.1.13
-  |  |  |-esquery@1.5.0
-  |  |  |-brace-expansion@2.0.1
-  |  |  |-update-browserslist-db@1.0.16_browserslist@4.23.1
-  |  |  |-wrap-ansi@8.1.0
-  |  |  |-@babel+helper-module-imports@7.24.7
-  |  |  |-json-buffer@3.0.1
-  |  |  |-thenify-all@1.6.0
-  |  |  |-thenify@3.3.1
-  |  |  |-set-function-name@2.0.2
-  |  |  |-es-iterator-helpers@1.0.19
-  |  |  |-find-up@5.0.0
-  |  |  |-has-proto@1.0.3
-  |  |  |-is-generator-function@1.0.10
-  |  |  |-minimatch@9.0.5
-  |  |  |-binary-extensions@2.3.0
-  |  |  |-string-width@4.2.3
-  |  |  |-is-callable@1.2.7
-  |  |  |-path-scurry@1.11.1
-  |  |  |-tailwindcss@3.4.4
-  |  |  |-is-path-inside@3.0.3
-  |  |  |-object-assign@4.1.1
-  |  |  |-run-parallel@1.2.0
-  |  |  |-lines-and-columns@1.2.4
-  |  |  |-is-negative-zero@2.0.3
-  |  |  |-eslint-scope@7.2.2
-  |  |  |-strip-ansi@6.0.1
-  |  |  |-jsx-ast-utils@3.3.5
-  |  |  |-react@18.3.1
-  |  |  |-call-bind@1.0.7
-  |  |  |-proxy-from-env@1.1.0
-  |  |  |-prop-types@15.8.1
-  |  |  |-punycode@2.3.1
-  |  |  |-js-tokens@4.0.0
-  |  |  |-levn@0.4.1
-  |  |  |-queue-microtask@1.2.3
-  |  |  |-csstype@3.1.3
-  |  |  |-es-set-tostringtag@2.0.3
-  |  |  |-@babel+helper-module-transforms@7.24.7_@babel+core@7.24.7
-  |  |  |-eslint-plugin-react-refresh@0.4.7_eslint@8.57.0
-  |  |  |-imurmurhash@0.1.4
-  |  |-@types
-  |  |-.bin
-  |  |-@eslint
-  |  |-@vitejs
-  |  |-@eslint-community
-  |-public
-  |-src
-  |  |-utils
-  |  |-components
-  |  |-hooks
-  |  |-assets
-  |  |-pages
-  |  |-services
+src/
+  assets/
+  components/
+    Errors/
+    Session/
+    ...
+  hooks/
+    usePaperLoader.js        # arXiv lookup, references selection, PDF uploads
+  pages/
+    Home.jsx
+    Start.jsx
+    ContextBuilder.jsx
+    Chat.jsx                 # WebSocket chat UI
+    ChatHistory.jsx
+    Account.jsx
+    Success.jsx
+    HealthCheck.jsx
+  utils/
+    axiosConfig.js           # axios instance with retry + baseURL
+  App.jsx                    # routes and layout
+  main.jsx                   # Auth0 provider + router
 ```
 
-## Available Scripts
+## How it Works (Frontend)
 
-- `pnpm dev`: Starts the development server
-- `pnpm build`: Builds the app for production
-- `pnpm preview`: Serves the built app
+- On login, users are routed to `Start` → `ContextBuilder` to assemble a session context.
+- `usePaperLoader` calls the backend to fetch an arXiv paper and its references; users choose which to include and can add more papers or PDFs.
+- Entering `Chat` opens a WebSocket connection to stream AI responses; session status (active/warning/expired) is handled in real time.
+- Users can extend or terminate sessions, and view chat history.
+
+## Environment & Deployment
+
+- This is a static frontend built with Vite. After `pnpm build`, deploy the contents of `dist/` to any static host (e.g., Netlify, Vercel, S3, or behind Caddy/Nginx). A `Caddyfile` is included as an example for static serving.
+- Ensure your hosting environment exposes the required `VITE_*` variables at build time, and that it can reach the backend over HTTP and WebSocket.
+
+## Scripts
+
+- `pnpm dev` — run the dev server
+- `pnpm build` — production build to `dist/`
+- `pnpm preview` — serve production build locally
+- `pnpm lint` — run ESLint
+
+## Related
+
+- Backend service (API + WS): kept in a separate repository.
 
 ---
 
-b. Use this local version of pnpm to regenerate your lock file:
-pnpm exec pnpm install --force
-This command uses the locally installed pnpm (version 7.x) to regenerate the lock file, ensuring it's in the correct format for version 8. 3. After regenerating the lock file, you should commit both the updated pnpm-lock.yaml and the changes to package.json (which will now include pnpm@7 as a dev dependency).
-For your local development, you can continue to use your globally installed pnpm (9.6). When you need to update dependencies or regenerate the lock file, use the command from step 2b.
+This project was built prior to native multi-document features becoming common in LLM tooling; it demonstrates a custom multi-paper chat workflow for research use cases.
+
+ 
